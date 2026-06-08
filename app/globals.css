@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
+/* ─── Brand tokens (FROZEN — see CLAUDE.md §3) ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:           #0a0908;
+  --bg2:          #13110f;
+  --bg3:          #1c1916;
+  --bg4:          #26231e;
+  --bg5:          #302c26;
+  --brass:        #d4a574;
+  --brass-dim:    #a07a50;
+  --brass-glow:   rgba(212, 165, 116, 0.18);
+  --sienna:       #c45a3a;
+  --sienna-dim:   #8a3e28;
+  --cream:        #f0ead8;
+  --cream-mid:    #c8bfaa;
+  --cream-dim:    #8a8070;
+  --green:        #5aaa72;
+  --green-bg:     rgba(90, 170, 114, 0.12);
+  --border:       #2a2620;
+  --border-light: #3a3428;
 }
 
+/* ─── Tailwind v4 theme: expose brand tokens as utility classes ─── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg:           var(--bg);
+  --color-bg-1:         var(--bg);
+  --color-bg-2:         var(--bg2);
+  --color-bg-3:         var(--bg3);
+  --color-bg-4:         var(--bg4);
+  --color-bg-5:         var(--bg5);
+  --color-brass:        var(--brass);
+  --color-brass-dim:    var(--brass-dim);
+  --color-sienna:       var(--sienna);
+  --color-sienna-dim:   var(--sienna-dim);
+  --color-cream:        var(--cream);
+  --color-cream-mid:    var(--cream-mid);
+  --color-cream-dim:    var(--cream-dim);
+  --color-green:        var(--green);
+  --color-border-base:  var(--border);
+  --color-border-soft:  var(--border-light);
+
+  --font-display: var(--font-fraunces);
+  --font-sans:    var(--font-inter-tight);
+  --font-mono:    var(--font-jetbrains-mono);
+
+  --ease-spring:  cubic-bezier(.34, 1.56, .64, 1);
+  --ease-out-soft: cubic-bezier(.22, 1, .36, 1);
+
+  --shadow-elev-1: 0 1px 2px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.18);
+  --shadow-elev-2: 0 4px 12px rgba(0,0,0,.45), 0 12px 36px rgba(212,165,116,.06);
+  --shadow-elev-3: 0 8px 32px rgba(0,0,0,.55), 0 24px 72px rgba(196,90,58,.08);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base ─── */
+html, body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+::selection { background: var(--brass-glow); color: var(--cream); }
+
+/* ─── Scrollbars (subtle, brand-tinted) ─── */
+*::-webkit-scrollbar      { width: 4px; height: 4px; }
+*::-webkit-scrollbar-thumb{ background: var(--border-light); border-radius: 2px; }
+*::-webkit-scrollbar-track{ background: transparent; }
+
+/* ─── Focus rings (a11y, brand-tinted) ─── */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--brass) 60%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
+
+/* ─── Headings inherit Fraunces by default; em flips to italic brass ─── */
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-display), serif; font-weight: 300; letter-spacing: -0.015em; }
+h1 em, h2 em, h3 em { font-style: italic; color: var(--brass); }
+
+/* ─── Reusable surface depth ─── */
+.surface-1 { background: var(--bg2); border: 1px solid var(--border); }
+.surface-2 { background: var(--bg3); border: 1px solid var(--border-light); }
+.surface-3 { background: linear-gradient(135deg, var(--bg3), var(--bg4)); border: 1px solid var(--border-light); }
+
+/* ─── Shimmer (used on XP bar) ─── */
+@keyframes shimmer { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(.8); } }

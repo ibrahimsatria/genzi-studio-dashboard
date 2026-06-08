@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genzi Studio — Growth OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0908;
+  --bg2:#13110f;
+  --bg3:#1c1916;
+  --bg4:#26231e;
+  --bg5:#302c26;
+  --brass:#d4a574;
+  --brass-dim:#a07a50;
+  --brass-glow:rgba(212,165,116,0.18);
+  --sienna:#c45a3a;
+  --sienna-dim:#8a3e28;
+  --cream:#f0ead8;
+  --cream-mid:#c8bfaa;
+  --cream-dim:#8a8070;
+  --green:#5aaa72;
+  --green-bg:rgba(90,170,114,0.12);
+  --border:#2a2620;
+  --border-light:#3a3428;
+  --font-d:'Fraunces',serif;
+  --font-b:'Inter Tight',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+  --r:12px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--cream);font-family:var(--font-b);font-size:15px;line-height:1.65;min-height:100vh;overflow-x:hidden}
+
+/* ─── CANVAS BG ─── */
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.45}
+
+/* ─── SHELL ─── */
+.shell{display:grid;grid-template-columns:256px 1fr;min-height:100vh;position:relative;z-index:1}
+
+/* ─── SIDEBAR ─── */
+.sidebar{background:rgba(13,11,9,0.96);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;backdrop-filter:blur(12px)}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px}
+
+.sb-logo{padding:28px 24px 22px;border-bottom:1px solid var(--border)}
+.sb-logo-name{font-family:var(--font-d);font-size:20px;font-weight:300;color:var(--brass);letter-spacing:.02em;line-height:1.2}
+.sb-logo-sub{font-family:var(--font-m);font-size:9px;color:var(--cream-dim);letter-spacing:.14em;text-transform:uppercase;margin-top:4px}
+
+/* XP Block */
+.sb-xp{padding:20px 24px;border-bottom:1px solid var(--border)}
+.sb-xp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sb-xp-label{font-family:var(--font-m);font-size:9px;color:var(--cream-dim);letter-spacing:.1em;text-transform:uppercase}
+.sb-level{font-family:var(--font-m);font-size:11px;font-weight:600;color:var(--brass);background:var(--brass-glow);padding:2px 8px;border-radius:20px;border:1px solid rgba(212,165,116,.25);transition:all .3s}
+.sb-xp-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;position:relative}
+.sb-xp-fill{height:100%;background:linear-gradient(90deg,var(--sienna),var(--brass));border-radius:3px;transition:width .8s cubic-bezier(.34,1.56,.64,1);position:relative}
+.sb-xp-fill::after{content:'';position:absolute;top:0;right:0;width:20px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3));animation:shimmer 2s infinite}
+@keyframes shimmer{0%,100%{opacity:0}50%{opacity:1}}
+.sb-xp-pts{font-family:var(--font-m);font-size:11px;color:var(--brass);margin-top:8px;display:flex;justify-content:space-between}
+.sb-xp-pts span{color:var(--cream-dim)}
+
+/* Nav */
+.sb-nav-label{padding:18px 24px 6px;font-family:var(--font-m);font-size:9px;color:var(--cream-dim);letter-spacing:.14em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 24px;cursor:pointer;border-left:2px solid transparent;transition:all .18s;color:var(--cream-dim);font-size:14px;font-weight:400;user-select:none;position:relative}
+.nav-item:hover{background:var(--bg3);color:var(--cream-mid);border-left-color:var(--border-light)}
+.nav-item.active{background:rgba(212,165,116,.07);color:var(--brass);border-left-color:var(--brass)}
+.nav-item.active .nav-icon{color:var(--brass)}
+.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;color:var(--cream-dim);transition:color .18s}
+.nav-done-badge{margin-left:auto;font-family:var(--font-m);font-size:9px;color:var(--green);background:var(--green-bg);padding:1px 6px;border-radius:10px;opacity:0;transition:opacity .3s}
+.nav-item.done .nav-done-badge{opacity:1}
+
+/* Sidebar footer */
+.sb-foot{margin-top:auto;padding:20px 24px;border-top:1px solid var(--border)}
+.phase-pill{display:inline-flex;align-items:center;gap:6px;background:var(--green-bg);border:1px solid rgba(90,170,114,.25);border-radius:20px;padding:5px 12px;font-family:var(--font-m);font-size:9px;color:var(--green);letter-spacing:.1em;text-transform:uppercase}
+.phase-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.sb-progress-label{font-size:12px;color:var(--cream-dim);margin-top:12px}
+.sb-progress-label strong{color:var(--cream);font-weight:500}
+
+/* ─── MAIN ─── */
+.main{overflow-y:auto;height:100vh;scroll-behavior:smooth}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px}
+
+/* Panels */
+.panel{display:none}
+.panel.active{display:block;animation:panelIn .35s cubic-bezier(.22,1,.36,1)}
+@keyframes panelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Panel header */
+.ph{padding:48px 56px 36px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.ph::before{content:'';position:absolute;top:-60px;right:-60px;width:320px;height:320px;background:radial-gradient(circle,rgba(212,165,116,.07) 0%,transparent 65%);pointer-events:none}
+.ph-eye{font-family:var(--font-m);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-dim);margin-bottom:12px}
+.ph-title{font-family:var(--font-d);font-size:38px;font-weight:300;color:var(--cream);line-height:1.15;margin-bottom:12px}
+.ph-title em{font-style:italic;color:var(--brass)}
+.ph-desc{font-size:15px;color:var(--cream-mid);max-width:580px;line-height:1.75}
+.ph-xp{display:inline-flex;align-items:center;gap:6px;background:rgba(212,165,116,.08);border:1px solid rgba(212,165,116,.2);border-radius:20px;padding:5px 14px;font-family:var(--font-m);font-size:10px;color:var(--brass);margin-top:16px;cursor:default}
+
+/* Panel body */
+.pb{padding:48px 56px}
+
+/* ─── TYPOGRAPHY ─── */
+.section-label{font-family:var(--font-m);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-dim);border-bottom:1px solid var(--border);padding-bottom:12px;margin:40px 0 22px}
+.section-label:first-child{margin-top:0}
+p.body-text{font-size:15px;color:var(--cream-mid);line-height:1.8;margin-bottom:16px}
+p.body-text:last-child{margin-bottom:0}
+p.body-text strong{color:var(--cream);font-weight:600}
+
+/* ─── QUOTE ─── */
+.quote{border-left:2px solid var(--brass);padding:18px 22px;background:linear-gradient(90deg,rgba(212,165,116,.06),transparent);border-radius:0 10px 10px 0;margin:20px 0}
+.quote p{font-family:var(--font-d);font-style:italic;font-size:16px;color:var(--cream);line-height:1.65}
+.quote cite{display:block;font-family:var(--font-m);font-size:10px;color:var(--brass-dim);margin-top:10px;font-style:normal;letter-spacing:.06em}
+
+/* ─── CARDS ─── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:4px 0 20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:4px 0 20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,165,116,.15),transparent);opacity:0;transition:opacity .2s}
+.card:hover{border-color:var(--border-light);transform:translateY(-3px)}
+.card:hover::before{opacity:1}
+.card-eye{font-family:var(--font-m);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass-dim);margin-bottom:10px}
+.card-title{font-size:16px;font-weight:500;color:var(--cream);margin-bottom:10px;line-height:1.3}
+.card-body{font-size:13px;color:var(--cream-mid);line-height:1.7}
+.card-tag{font-family:var(--font-m);font-size:10px;color:var(--sienna);margin-top:14px}
+
+/* ─── EXPANDABLE ─── */
+.exp{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px;transition:border-color .2s}
+.exp:hover{border-color:var(--border-light)}
+.exp-trigger{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;cursor:pointer;background:var(--bg2);transition:background .2s;user-select:none;gap:12px}
+.exp-trigger:hover{background:var(--bg3)}
+.exp-trigger.open{background:var(--bg3);border-bottom:1px solid var(--border)}
+.exp-left{display:flex;align-items:center;gap:14px}
+.exp-num{font-family:var(--font-m);font-size:10px;color:var(--brass-dim);flex-shrink:0;min-width:22px}
+.exp-title{font-size:15px;font-weight:500;color:var(--cream);line-height:1.3}
+.exp-arrow{font-size:11px;color:var(--cream-dim);transition:transform .25s;flex-shrink:0}
+.exp-trigger.open .exp-arrow{transform:rotate(180deg)}
+.exp-body{display:none;padding:26px 26px 26px 60px;background:var(--bg2)}
+.exp-trigger.open + .exp-body{display:block;animation:expandIn .2s ease}
+@keyframes expandIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.exp-body p{font-size:14px;color:var(--cream-mid);line-height:1.8;margin-bottom:14px}
+.exp-body p:last-child{margin-bottom:0}
+.exp-body strong{color:var(--cream);font-weight:600}
+.exp-body .quote{margin:14px 0}
+
+/* ─── CHECKLIST ─── */
+.checklist{list-style:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.checklist li{display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
+.checklist li:last-child{border-bottom:none}
+.checklist li:hover:not(.checked){background:var(--bg3)}
+.checklist li.checked{background:rgba(90,170,114,.04)}
+.chk-box{width:20px;height:20px;border:1.5px solid var(--border-light);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .25s;font-size:11px;color:transparent}
+.checklist li.checked .chk-box{background:var(--green);border-color:var(--green);color:#fff;transform:scale(1.05)}
+.chk-text{font-size:14px;color:var(--cream-mid);flex:1;line-height:1.4;transition:color .2s}
+.checklist li.checked .chk-text{color:var(--cream-dim);text-decoration:line-through;text-decoration-color:rgba(138,128,112,.4)}
+.chk-xp{font-family:var(--font-m);font-size:10px;color:var(--brass-dim);flex-shrink:0;transition:color .2s}
+.checklist li.checked .chk-xp{color:var(--green)}
+.chk-ripple{position:absolute;inset:0;background:radial-gradient(circle,rgba(90,170,114,.15) 0%,transparent 70%);opacity:0;transform:scale(0);transition:none}
+.checklist li.checked .chk-ripple{animation:rippleOut .5s ease forwards}
+@keyframes rippleOut{0%{opacity:1;transform:scale(0)}100%{opacity:0;transform:scale(2)}}
+
+/* ─── TIER ROW ─── */
+.tier-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:4px 0 20px}
+.tier{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;transition:border-color .2s}
+.tier.rec{border-color:rgba(212,165,116,.35);background:linear-gradient(135deg,rgba(212,165,116,.05),transparent)}
+.tier-badge{display:inline-block;font-family:var(--font-m);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:12px}
+.t-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(90,170,114,.2)}
+.t-brass{background:rgba(212,165,116,.1);color:var(--brass);border:1px solid rgba(212,165,116,.25)}
+.t-red{background:rgba(196,90,58,.1);color:var(--sienna);border:1px solid rgba(196,90,58,.2)}
+.tier-name{font-size:16px;font-weight:500;color:var(--cream);margin-bottom:8px}
+.tier-price{font-family:var(--font-d);font-size:26px;color:var(--brass);margin-bottom:14px;line-height:1}
+.tier-price small{font-family:var(--font-b);font-size:12px;color:var(--cream-dim);font-weight:400}
+.tier-list{list-style:none;font-size:13px;color:var(--cream-mid);line-height:1.9}
+.tier-list li{display:flex;gap:8px;align-items:flex-start}
+.tier-list li::before{content:'→';color:var(--brass-dim);flex-shrink:0;margin-top:1px}
+.tier-note{font-size:11px;color:var(--sienna);margin-top:10px;font-family:var(--font-m)}
+
+/* ─── PILLAR CARDS ─── */
+.pillar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;transition:border-color .2s,transform .2s}
+.pillar:hover{border-color:var(--border-light);transform:translateY(-3px)}
+.pillar-num{font-family:var(--font-m);font-size:10px;color:var(--brass-dim);margin-bottom:10px;letter-spacing:.08em}
+.pillar-title{font-size:16px;font-weight:500;color:var(--cream);margin-bottom:10px}
+.pillar-body{font-size:13px;color:var(--cream-mid);line-height:1.7;margin-bottom:14px}
+.example-box{background:var(--bg4);border-left:2px solid var(--brass-dim);border-radius:0 6px 6px 0;padding:12px 14px;font-size:12px;color:var(--cream-mid);font-style:italic;line-height:1.6}
+
+/* ─── PHASE ROW ─── */
+.phase-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:4px 0 24px;position:relative}
+.phase-row::before{content:'';position:absolute;top:36px;left:calc(16.66% + 12px);right:calc(16.66% + 12px);height:1px;background:linear-gradient(90deg,var(--brass-dim),var(--border-light));opacity:.4}
+.phase-box{text-align:center;padding:0 10px}
+.phase-circle{width:72px;height:72px;border-radius:50%;border:1px solid;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-family:var(--font-d);font-size:22px;font-weight:300;transition:all .3s}
+.phase-box.now .phase-circle{background:var(--green-bg);border-color:rgba(90,170,114,.4);color:var(--green);box-shadow:0 0 24px rgba(90,170,114,.15)}
+.phase-box.next .phase-circle,.phase-box.scale .phase-circle{background:var(--bg3);border-color:var(--border-light);color:var(--cream-dim)}
+.phase-span{font-family:var(--font-m);font-size:9px;color:var(--cream-dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.phase-name{font-size:15px;font-weight:500;color:var(--cream);margin-bottom:4px}
+.phase-time{font-family:var(--font-m);font-size:11px;color:var(--brass-dim)}
+
+/* ─── OVERVIEW CARDS ─── */
+.nav-overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:4px 0}
+.ov-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:10px}
+.ov-card:hover{border-color:var(--brass-dim);background:rgba(212,165,116,.03);transform:translateY(-2px)}
+.ov-eye{font-family:var(--font-m);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass-dim)}
+.ov-title{font-size:16px;font-weight:500;color:var(--cream)}
+.ov-body{font-size:13px;color:var(--cream-mid);line-height:1.6}
+.ov-prog-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:4px}
+.ov-prog-fill{height:100%;background:linear-gradient(90deg,var(--sienna),var(--brass));border-radius:2px;transition:width .6s ease;width:0%}
+.ov-prog-label{font-family:var(--font-m);font-size:9px;color:var(--cream-dim);margin-top:5px}
+
+/* ─── OVERALL PROGRESS ─── */
+.overall-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:24px}
+.overall-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.overall-title{font-family:var(--font-m);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--cream-dim)}
+.overall-pct{font-family:var(--font-m);font-size:14px;color:var(--brass);font-weight:600}
+.overall-bar{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.overall-fill{height:100%;background:linear-gradient(90deg,var(--sienna),var(--brass));border-radius:4px;transition:width 1s cubic-bezier(.34,1.56,.64,1);width:0%}
+
+/* ─── HERO BLOCK ─── */
+.hero-block{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:16px;padding:36px;margin-bottom:28px;position:relative;overflow:hidden}
+.hero-block::after{content:'GENZI';position:absolute;right:-12px;bottom:-24px;font-family:var(--font-d);font-size:130px;font-weight:700;color:rgba(212,165,116,.04);line-height:1;pointer-events:none;user-select:none}
+.hero-block h2{font-family:var(--font-d);font-size:28px;font-weight:300;color:var(--cream);margin-bottom:12px;line-height:1.2}
+.hero-block h2 em{font-style:italic;color:var(--brass)}
+.hero-block p{font-size:15px;color:var(--cream-mid);line-height:1.8;max-width:560px}
+
+/* ─── PARTICLES ─── */
+.particle{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:particleFly var(--dur) ease-out forwards}
+@keyframes particleFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+
+/* ─── XP POP ─── */
+.xp-pop{position:fixed;pointer-events:none;z-index:9999;font-family:var(--font-m);font-size:16px;font-weight:600;color:var(--brass);text-shadow:0 0 12px rgba(212,165,116,.6);animation:xpPop .9s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes xpPop{0%{opacity:0;transform:translateY(0) scale(.6)}30%{opacity:1;transform:translateY(-18px) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(.9)}}
+
+/* ─── LEVEL UP OVERLAY ─── */
+#levelup-overlay{position:fixed;inset:0;z-index:10000;background:rgba(10,9,8,.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .4s}
+#levelup-overlay.show{opacity:1;pointer-events:all}
+.levelup-box{text-align:center;animation:levelBoxIn .5s cubic-bezier(.34,1.56,.64,1) forwards;position:relative;z-index:2}
+@keyframes levelBoxIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.levelup-label{font-family:var(--font-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass-dim);margin-bottom:12px}
+.levelup-num{font-family:var(--font-d);font-size:96px;font-weight:700;color:var(--brass);line-height:1;text-shadow:0 0 60px rgba(212,165,116,.4)}
+.levelup-title{font-family:var(--font-d);font-size:28px;font-weight:300;color:var(--cream);margin-top:8px;font-style:italic}
+.levelup-dismiss{font-family:var(--font-m);font-size:11px;color:var(--cream-dim);margin-top:28px;letter-spacing:.1em;cursor:pointer;padding:10px 24px;border:1px solid var(--border-light);border-radius:20px;display:inline-block;transition:all .2s}
+.levelup-dismiss:hover{border-color:var(--brass-dim);color:var(--brass)}
+.levelup-ring{position:absolute;width:300px;height:300px;border:1px solid rgba(212,165,116,.15);border-radius:50%;animation:ringPulse 1.5s ease-out infinite}
+.levelup-ring:nth-child(2){animation-delay:.4s;width:400px;height:400px}
+.levelup-ring:nth-child(3){animation-delay:.8s;width:500px;height:500px}
+@keyframes ringPulse{0%{opacity:.5;transform:scale(.5)}100%{opacity:0;transform:scale(1)}}
+
+/* ─── TOAST ─── */
+#toast{position:fixed;bottom:32px;right:32px;z-index:999;background:var(--bg3);border:1px solid var(--border-light);border-radius:12px;padding:16px 20px;min-width:220px;transform:translateY(80px) scale(.95);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#toast.show{transform:translateY(0) scale(1);opacity:1}
+.toast-head{font-size:13px;color:var(--cream);font-weight:500;margin-bottom:4px}
+.toast-xp{font-family:var(--font-m);font-size:12px;color:var(--brass)}
+
+/* ─── CANVAS OVERLAY FLASH ─── */
+#flash{position:fixed;inset:0;pointer-events:none;z-index:900;opacity:0;transition:opacity .1s;background:radial-gradient(circle at center,rgba(212,165,116,.25),transparent 60%)}
+
+/* ─── SIDEBAR CONTROLS ─── */
+.sb-controls{display:flex;gap:8px;margin-top:14px}
+.sb-btn{flex:1;background:transparent;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-family:var(--font-m);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--cream-dim);cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px;user-select:none;line-height:1}
+.sb-btn:hover{border-color:var(--brass-dim);color:var(--brass);background:rgba(212,165,116,.05)}
+.sb-btn:active{transform:translateY(1px)}
+.sb-btn.muted .sb-btn-on,.sb-btn:not(.muted) .sb-btn-off{display:none}
+.sb-btn.muted{color:var(--sienna-dim);border-color:rgba(196,90,58,.22)}
+
+/* ─── ACCESSIBILITY / FOCUS ─── */
+:focus{outline:none}
+.nav-item:focus-visible,.ov-card:focus-visible,.exp-trigger:focus-visible,.sb-btn:focus-visible,.levelup-dismiss:focus-visible{box-shadow:inset 0 0 0 2px rgba(212,165,116,.45);border-color:var(--brass-dim)}
+.checklist li:focus-visible{box-shadow:inset 0 0 0 2px rgba(212,165,116,.45);background:var(--bg3)}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div id="flash"></div>
+
+<!-- LEVEL UP OVERLAY -->
+<div id="levelup-overlay" onclick="dismissLevelUp()">
+  <div style="position:relative;display:flex;align-items:center;justify-content:center">
+    <div class="levelup-ring"></div>
+    <div class="levelup-ring"></div>
+    <div class="levelup-ring"></div>
+    <div class="levelup-box">
+      <div class="levelup-label">Level Up</div>
+      <div class="levelup-num" id="lu-num">2</div>
+      <div class="levelup-title" id="lu-title">Strategist</div>
+      <div class="levelup-dismiss">Tap to continue</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div class="toast-head" id="t-msg"></div><div class="toast-xp" id="t-xp"></div></div>
+
+<div class="shell">
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-name">Genzi Studio</div>
+    <div class="sb-logo-sub">Growth OS · Phase 1</div>
+  </div>
+
+  <div class="sb-xp">
+    <div class="sb-xp-header">
+      <span class="sb-xp-label">Experience Points</span>
+      <span class="sb-level" id="sb-level">Lv 1 · Founder</span>
+    </div>
+    <div class="sb-xp-track"><div class="sb-xp-fill" id="xp-fill" style="width:0%"></div></div>
+    <div class="sb-xp-pts"><strong id="xp-pts">0 XP</strong><span id="xp-next">/ 200 next level</span></div>
+  </div>
+
+  <div class="sb-nav-label">Sections</div>
+  <div class="nav-item active" data-p="overview"><span class="nav-icon">◈</span>Overview<span class="nav-done-badge">done</span></div>
+  <div class="nav-item" data-p="roadmap"><span class="nav-icon">◎</span>Roadmap<span class="nav-done-badge">done</span></div>
+  <div class="nav-item" data-p="portfolio"><span class="nav-icon">◱</span>Portfolio<span class="nav-done-badge">done</span></div>
+  <div class="nav-item" data-p="pricing"><span class="nav-icon">◐</span>Pricing<span class="nav-done-badge">done</span></div>
+  <div class="nav-item" data-p="specwork"><span class="nav-icon">◆</span>Spec Work<span class="nav-done-badge">done</span></div>
+  <div class="nav-item" data-p="personalbrand"><span class="nav-icon">◉</span>Personal Brand<span class="nav-done-badge">done</span></div>
+  <div class="nav-item" data-p="outreach"><span class="nav-icon">◀</span>Outreach<span class="nav-done-badge">done</span></div>
+
+  <div class="sb-foot">
+    <div class="phase-pill"><div class="phase-dot"></div>Phase 1 Active</div>
+    <div class="sb-progress-label" style="margin-top:12px">Sections read: <strong id="sec-count">0</strong> / 6</div>
+    <div class="sb-progress-label">Tasks done: <strong id="task-count">0</strong> / <span id="task-total">33</span></div>
+    <div class="sb-controls">
+      <button class="sb-btn" id="snd-btn" type="button" onclick="toggleSound()" aria-label="Toggle sound" title="Toggle sound effects"><span class="sb-btn-on">♪ Sound</span><span class="sb-btn-off">Muted</span></button>
+      <button class="sb-btn" type="button" onclick="resetProgress()" aria-label="Reset progress" title="Reset all progress">↺ Reset</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main" id="main-scroll">
+
+<!-- ─── OVERVIEW ─── -->
+<div class="panel active" id="panel-overview">
+  <div class="ph">
+    <div class="ph-eye">Mission Control</div>
+    <h1 class="ph-title">Your <em>Growth OS</em></h1>
+    <p class="ph-desc">Everything you need to grow Genzi Studio from zero clients to a thriving Brunei agency — all in one place. Read each section to earn XP, complete tasks to level up.</p>
+  </div>
+  <div class="pb">
+    <div class="hero-block">
+      <h2>The core <em>problem</em> we're solving</h2>
+      <p>You're in a credibility chicken-and-egg trap: clients want proof, but you need clients to build proof. The way out is to manufacture proof first — then use it to attract clients systematically. That's exactly what this OS is built to guide you through.</p>
+    </div>
+    <div class="overall-wrap">
+      <div class="overall-header"><span class="overall-title">Overall Progress</span><span class="overall-pct" id="ov-pct">0%</span></div>
+      <div class="overall-bar"><div class="overall-fill" id="ov-fill"></div></div>
+    </div>
+    <div class="section-label">Jump to a section</div>
+    <div class="nav-overview-grid">
+      <div class="ov-card" onclick="goPanel('roadmap')">
+        <div class="ov-eye">Phase overview</div>
+        <div class="ov-title">3-Phase Roadmap</div>
+        <div class="ov-body">Build proof → activate channels → scale and convert. Your complete timeline from today to recurring revenue.</div>
+        <div class="ov-prog-bar"><div class="ov-prog-fill" id="opf-roadmap"></div></div>
+        <div class="ov-prog-label" id="opl-roadmap">0% complete</div>
+      </div>
+      <div class="ov-card" onclick="goPanel('portfolio')">
+        <div class="ov-eye">Foundation</div>
+        <div class="ov-title">Build your Portfolio</div>
+        <div class="ov-body">From zero proof to 3–5 compelling pieces. What makes a portfolio piece work, what sectors to target in Brunei.</div>
+        <div class="ov-prog-bar"><div class="ov-prog-fill" id="opf-portfolio"></div></div>
+        <div class="ov-prog-label" id="opl-portfolio">0% complete</div>
+      </div>
+      <div class="ov-card" onclick="goPanel('pricing')">
+        <div class="ov-eye">Deals</div>
+        <div class="ov-title">Pricing Strategy</div>
+        <div class="ov-body">The 3-tier deal structure for free and discounted work. How to frame it so it builds your reputation, not devalues it.</div>
+        <div class="ov-prog-bar"><div class="ov-prog-fill" id="opf-pricing"></div></div>
+        <div class="ov-prog-label" id="opl-pricing">0% complete</div>
+      </div>
+      <div class="ov-card" onclick="goPanel('specwork')">
+        <div class="ov-eye">Execution</div>
+        <div class="ov-title">Spec Work Process</div>
+        <div class="ov-body">The full 5-stage system to create portfolio pieces without a client — and turn each one into a real door opener.</div>
+        <div class="ov-prog-bar"><div class="ov-prog-fill" id="opf-specwork"></div></div>
+        <div class="ov-prog-label" id="opl-specwork">0% complete</div>
+      </div>
+      <div class="ov-card" onclick="goPanel('personalbrand')">
+        <div class="ov-eye">Visibility</div>
+        <div class="ov-title">Personal Brand System</div>
+        <div class="ov-body">How ibrahimsatria._ drives clients to Genzi Studio. The 3 content pillars and the conversion funnel between your accounts.</div>
+        <div class="ov-prog-bar"><div class="ov-prog-fill" id="opf-personalbrand"></div></div>
+        <div class="ov-prog-label" id="opl-personalbrand">0% complete</div>
+      </div>
+      <div class="ov-card" onclick="goPanel('outreach')">
+        <div class="ov-eye">Client Acquisition</div>
+        <div class="ov-title">Outreach Playbook</div>
+        <div class="ov-body">Discovery-first outreach for Brunei SMEs. The scripts, sectors, and sequences that start real conversations without cold-pitching.</div>
+        <div class="ov-prog-bar"><div class="ov-prog-fill" id="opf-outreach"></div></div>
+        <div class="ov-prog-label" id="opl-outreach">0% complete</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ROADMAP ─── -->
+<div class="panel" id="panel-roadmap">
+  <div class="ph">
+    <div class="ph-eye">Phase overview</div>
+    <h1 class="ph-title">3-Phase <em>Roadmap</em></h1>
+    <p class="ph-desc">Your complete growth timeline — from today with zero clients to a predictable, recurring-revenue agency. Each phase unlocks the next.</p>
+    <div class="ph-xp">✦ Read this section to earn +50 XP</div>
+  </div>
+  <div class="pb">
+    <div class="phase-row">
+      <div class="phase-box now">
+        <div class="phase-circle">1</div>
+        <div class="phase-span">Now</div>
+        <div class="phase-name">Build Proof</div>
+        <div class="phase-time">Month 0 – 1</div>
+      </div>
+      <div class="phase-box next">
+        <div class="phase-circle">2</div>
+        <div class="phase-span">Next</div>
+        <div class="phase-name">Activate Channels</div>
+        <div class="phase-time">Month 1 – 3</div>
+      </div>
+      <div class="phase-box scale">
+        <div class="phase-circle">3</div>
+        <div class="phase-span">Scale</div>
+        <div class="phase-name">Convert & Retain</div>
+        <div class="phase-time">Month 3+</div>
+      </div>
+    </div>
+
+    <div class="section-label">Phase 1 — Build proof without waiting for paying clients</div>
+    <p class="body-text">You're trying to sell from zero proof. The fastest fix is to manufacture proof across three parallel tracks — spec work, discounted real work, and live documentation. You don't need a client to start any of them.</p>
+
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">1.1</span><span class="exp-title">Spec work — 3 local business rebrands</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>Pick 3 businesses in Brunei with visibly poor branding — a kopitiam, a retail shop, a service business like a tutoring centre or salon. Design their complete brand identity as if you were hired: logo system, colour palette, type pairing, application mockups, social templates. No permission needed. You own all rights. You get full creative control.</p>
+        <p><strong>Why it works:</strong> You get portfolio pieces with zero dependency on anyone else's timeline or budget. And once the piece is done, you can DM the real business — turning passive portfolio work into active prospecting simultaneously.</p>
+        <p><strong>Best targets in BSB:</strong> F&B spots with no visual coherence, night market vendors that have grown beyond a stall, service businesses with DIY-looking identity, new businesses that just launched with no brand at all.</p>
+      </div>
+    </div>
+
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">1.2</span><span class="exp-title">1–2 real clients at introductory rate</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>Take on 1–2 real businesses at 50–70% off your future rate, framed as an "introductory partnership" — not charity. The discount is specific to this first project only. In exchange: you control the creative direction, you get full publishing rights in writing, and you get a written testimonial on delivery day.</p>
+        <p><strong>Why charge something:</strong> Even BND 150–300 completely changes the dynamic. Clients who pay show up to feedback calls, respond to messages, make decisions on time, and respect your process. Free clients ghost, delay, and become demanding because they feel they have nothing at stake.</p>
+        <p><strong>Hard rules:</strong> Cap at 2 clients at this rate. State clearly upfront that the next project is at your standard rate. Clients who push back on that are exactly who you want to filter out at this stage.</p>
+      </div>
+    </div>
+
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">1.3</span><span class="exp-title">Document everything publicly in real time</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>Your personal Instagram (ibrahimsatria._) is where this happens. Post the process — not just the polished final output. Brief → concept exploration → revision → result. Show what got rejected and why. This builds authority faster than a finished portfolio because it's live proof you know how to think through a problem.</p>
+        <p><strong>Goal by end of Phase 1:</strong> 3–5 portfolio pieces, 2–3 real testimonials, a case study format you can repeat for every future project automatically.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Phase 2 — Activate your channels (Month 1–3)</div>
+    <p class="body-text">Once you have 3–5 pieces and 2–3 testimonials, you have something to point at. Now you run two tracks simultaneously — digital presence and direct outreach. Both feed each other.</p>
+
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">2.1</span><span class="exp-title">Two-account Instagram strategy</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p><strong>@genzistudio</strong> posts results: before/afters, case studies, transformation stories, and the agency's strategic POV on branding. This is credibility content — for people already looking for a creative agency.</p>
+        <p><strong>@ibrahimsatria._</strong> posts perspective: why local SME branding fails, what growth looks like in Brunei, founder journey, sharp opinions. This is trust content — for people who buy into you before they know the agency exists.</p>
+        <p>Always link the two accounts clearly. The personal account is the top of the funnel. The agency account is where trust converts to enquiry. This is why both need consistent activity, and your bio on both should point to the other.</p>
+      </div>
+    </div>
+
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">2.2</span><span class="exp-title">Direct outreach — lead with observation, not pitch</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>Target F&B, retail, and professional services (legal, medical, accounting) — they have real budgets and visible branding problems. Lead with a specific observation about their business, not a generic service pitch:</p>
+        <div class="quote"><p>"I noticed your Instagram hasn't been updated in 3 months — I had a few specific ideas for your business. Would you be open to a 20-minute conversation?"</p></div>
+        <p>This frames you as someone who did their homework, not someone mass-DMing with a template. In Brunei's small, relationship-driven market, that distinction matters enormously.</p>
+      </div>
+    </div>
+
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">2.3</span><span class="exp-title">LinkedIn + local networking</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>LinkedIn is underused in Brunei — which is your advantage. Post the same strategic perspective content you'd put on your personal Instagram, but in a longer-form B2B register. Business owners in BSB are increasingly active here. One good post per week is enough to become the most visible young creative strategist in the local feed.</p>
+        <p>For local networking: the Brunei Chinese Chamber of Commerce, BEDB events, youth entrepreneurship groups. In a market this small, one warm introduction from the right person can open five doors. You don't need advertising. You need to be consistently visible at the right places.</p>
+        <p><strong>Goal by end of Phase 2:</strong> 2–3 genuine discovery conversations per week, 1 paid client per month minimum.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Phase 3 — Scale and convert (Month 3+)</div>
+
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">3.1</span><span class="exp-title">Package your services into clear offers</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>Stop selling time. Start selling outcomes. Three tiers work well for Brunei SMEs:</p>
+        <p><strong>Brand Starter:</strong> Logo + brand guide + social templates. One-time project. Entry point for smaller businesses or those skeptical about investing in brand.</p>
+        <p><strong>Brand Growth:</strong> Full identity + 3 months of content strategy and social management. Mid-tier. The sweet spot for F&B and retail.</p>
+        <p><strong>Brand Scale:</strong> Complete identity + ongoing retainer — strategy, content, reporting, optimisation. Highest value, highest relationship. This is where your real revenue comes from.</p>
+        <p>Clear packages remove the "so what does this actually cost?" anxiety that kills deals in the discovery stage. Clients in Brunei respond well to structured offers because it feels safe and professional.</p>
+      </div>
+    </div>
+
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">3.2</span><span class="exp-title">Raise rates as proof accumulates</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>Every completed project is a rate justification. After your first 3 paid clients, review your pricing. After your first 5, raise it. The competition problem solves itself once you have proof — your editorial luxury aesthetic is already genuinely differentiated from what most local agencies produce in BSB. That's a real moat. You just need the work to prove it.</p>
+        <p><strong>Goal by end of Phase 3:</strong> Predictable pipeline, 3–5 retainer clients, a referral system that brings new leads passively without you actively hunting.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Phase 1 action checklist</div>
+    <ul class="checklist" id="cl-roadmap">
+      <li onclick="doCheck(this,'roadmap',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Choose 3 local businesses for spec work this week</span><span class="chk-xp">+10 XP</span></li>
+      <li onclick="doCheck(this,'roadmap',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Write a real brief before opening any design tool</span><span class="chk-xp">+10 XP</span></li>
+      <li onclick="doCheck(this,'roadmap',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Identify 2 businesses for discounted partnership</span><span class="chk-xp">+10 XP</span></li>
+      <li onclick="doCheck(this,'roadmap',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Update your personal Instagram bio to reference @genzistudio</span><span class="chk-xp">+10 XP</span></li>
+      <li onclick="doCheck(this,'roadmap',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Post your first process or founder journey content this week</span><span class="chk-xp">+10 XP</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ─── PORTFOLIO ─── -->
+<div class="panel" id="panel-portfolio">
+  <div class="ph">
+    <div class="ph-eye">Foundation</div>
+    <h1 class="ph-title">Build your <em>Portfolio</em></h1>
+    <p class="ph-desc">The strategy to go from zero proof to 3–5 compelling portfolio pieces — without waiting for a paying client to hire you first.</p>
+    <div class="ph-xp">✦ Read this section to earn +50 XP</div>
+  </div>
+  <div class="pb">
+    <div class="quote"><p>A portfolio piece is not a beautiful design. It is a story with a problem, a strategy, and a result. The design is the evidence.</p><cite>— The standard that separates professionals from practitioners</cite></div>
+
+    <div class="section-label">The 3 sources of portfolio work</div>
+    <div class="grid-3">
+      <div class="card"><div class="card-eye">Source 1</div><div class="card-title">Spec work</div><div class="card-body">Design for a real business without being hired. You pick the client, write the brief, control all creative decisions, own all rights. Zero dependency on anyone's schedule or budget.</div><div class="card-tag">Best for: speed and creative control</div></div>
+      <div class="card"><div class="card-eye">Source 2</div><div class="card-title">Discounted real work</div><div class="card-body">1–2 real clients at a reduced rate in exchange for full publishing rights and a written testimonial. Gets you real case studies with real relationships behind them.</div><div class="card-tag">Best for: testimonials and credibility</div></div>
+      <div class="card"><div class="card-eye">Source 3</div><div class="card-title">Personal projects</div><div class="card-body">Design something that matters to you — your own agency brand, a concept brand for a sector you want to serve. Shows passion, range, and where your aesthetic instincts naturally go.</div><div class="card-tag">Best for: showing your aesthetic range</div></div>
+    </div>
+
+    <div class="section-label">What separates strong work from weak work</div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">✗</span><span class="exp-title">Weak: gallery of final outputs</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>A logo on a white background. Three mockups on phone screens. Maybe a colour palette. This is what 90% of new designers put in their portfolio. It tells a prospective client nothing about how you think, what problem you were solving, whether you can handle a real engagement, or whether the design decision was yours or the client's.</p>
+        <p><strong>The question it fails to answer:</strong> "Can I trust this person to understand my business and make the right decisions?" Without strategic context, the answer is always uncertain.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">✓</span><span class="exp-title">Strong: narrative case study with problem and result</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>A case study follows this structure: <strong>1. The business and its problem</strong> — who they are, who they serve, what their current branding fails to communicate. <strong>2. Your strategic direction</strong> — what you decided to do and why. What you rejected and why. <strong>3. The work</strong> — the complete visual system. <strong>4. The outcome</strong> — what changed or what would change if this were implemented in full.</p>
+        <p>For spec work, the "outcome" section can be forward-looking: "A coherent brand identity that would allow [Business] to charge a premium and attract a more discerning customer." That's honest and still compelling to a prospective client in the same sector.</p>
+        <p><strong>The before/after contrast is your most powerful single tool.</strong> A screenshot of their current Instagram next to your redesigned concept — the gap does the selling for you before you've said a word.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Full deliverables list — what a complete piece includes</div>
+    <ul class="checklist" id="cl-portfolio">
+      <li onclick="doCheck(this,'portfolio',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Written brief (audience, problem, strategic direction, constraints)</span><span class="chk-xp">+10 XP · essential</span></li>
+      <li onclick="doCheck(this,'portfolio',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Logo + minimum 3 variations (horizontal, stacked, icon only)</span><span class="chk-xp">+10 XP · essential</span></li>
+      <li onclick="doCheck(this,'portfolio',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Full colour palette with named roles and usage rules</span><span class="chk-xp">+10 XP · essential</span></li>
+      <li onclick="doCheck(this,'portfolio',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Typography pairing with at least 3 usage examples in context</span><span class="chk-xp">+10 XP · essential</span></li>
+      <li onclick="doCheck(this,'portfolio',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">3+ application mockups (business card, signage or packaging, social)</span><span class="chk-xp">+10 XP · essential</span></li>
+      <li onclick="doCheck(this,'portfolio',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Instagram template set — at least one feed post and one story</span><span class="chk-xp">+10 XP · strong add</span></li>
+      <li onclick="doCheck(this,'portfolio',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Before screenshot + side-by-side comparison for the case study</span><span class="chk-xp">+10 XP · strong add</span></li>
+      <li onclick="doCheck(this,'portfolio',10)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">One-page written case study following problem → strategy → result</span><span class="chk-xp">+10 XP · strong add</span></li>
+    </ul>
+
+    <div class="section-label">Best target businesses in Brunei right now</div>
+    <div class="grid-2">
+      <div class="card"><div class="card-eye">Highest priority</div><div class="card-title">F&amp;B — cafés and kopitiams</div><div class="card-body">Abundant in BSB. Most have no visual coherence. Food and drink brands make naturally beautiful portfolio pieces because the applications — packaging, menus, signage, social content — are inherently photogenic. A before/after story is easy to tell and relatable to any future F&B client.</div></div>
+      <div class="card"><div class="card-eye">Highest priority</div><div class="card-title">Service businesses</div><div class="card-body">Tutoring centres, salons, clinics, accounting firms. These sectors have real budgets, branding directly impacts their ability to charge premium prices, and almost all of them have visibly DIY-looking identity. The upgrade story practically writes itself.</div></div>
+      <div class="card"><div class="card-eye">Good option</div><div class="card-title">Retail and night market vendors</div><div class="card-body">Vendors who have grown beyond a stall but have no brand infrastructure. They're often open to new ideas because they're in active growth mode and they know their visual identity hasn't kept pace with the business.</div></div>
+      <div class="card"><div class="card-eye">Good option</div><div class="card-title">New businesses launching</div><div class="card-body">A business that just started has no brand baggage. You can create something from scratch and show the full ideation process — which is the most compelling type of case study to show a prospective client facing the same blank-canvas situation.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PRICING ─── -->
+<div class="panel" id="panel-pricing">
+  <div class="ph">
+    <div class="ph-eye">Deals</div>
+    <h1 class="ph-title">Pricing <em>Strategy</em></h1>
+    <p class="ph-desc">How to approach free and discounted work so it builds your reputation rather than devaluing it. The framing you use makes all the difference.</p>
+    <div class="ph-xp">✦ Read this section to earn +50 XP</div>
+  </div>
+  <div class="pb">
+    <div class="quote"><p>You're not doing free work. You're buying an asset — a case study — at a negotiated price. That reframe changes every conversation you have about it.</p><cite>— The mindset shift that protects your positioning</cite></div>
+
+    <div class="section-label">The 3-tier deal structure</div>
+    <div class="tier-row">
+      <div class="tier">
+        <span class="tier-badge t-green">Tier 1 — Spec</span>
+        <div class="tier-name">No client needed</div>
+        <div class="tier-price">BND 0 <small>your time only</small></div>
+        <ul class="tier-list"><li>You choose the business</li><li>No client approval needed</li><li>Full creative control, all rights</li><li>No delivery pressure or delays</li></ul>
+        <div class="tier-note">No testimonial — but you can DM afterwards</div>
+      </div>
+      <div class="tier rec">
+        <span class="tier-badge t-brass">Tier 2 — Recommended</span>
+        <div class="tier-name">Introductory partnership</div>
+        <div class="tier-price">50–70% off <small>future rate</small></div>
+        <ul class="tier-list"><li>Real client relationship</li><li>Written testimonial at delivery</li><li>Full publishing rights in writing</li><li>Money exchanged = mutual respect</li></ul>
+        <div class="tier-note">Cap strictly at 2 clients at this rate</div>
+      </div>
+      <div class="tier">
+        <span class="tier-badge t-red">Tier 3 — Value swap</span>
+        <div class="tier-name">Work for non-cash value</div>
+        <div class="tier-price">BND 0 <small>trade for value</small></div>
+        <ul class="tier-list"><li>Trade design for their service</li><li>Builds local network naturally</li><li>Feels mutual, not one-sided</li><li>Formalize the exchange in writing</li></ul>
+        <div class="tier-note">Only if the trade genuinely benefits you</div>
+      </div>
+    </div>
+
+    <div class="section-label">Why Tier 2 beats free every time</div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">→</span><span class="exp-title">The psychology of charging something — even a small amount</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>When a client pays even BND 150–300 for what would normally cost BND 1,000+, they show up to feedback calls. They respond to messages within a day. They make creative decisions instead of postponing. They respect the timeline. Paying clients treat you like a professional because they've placed real value on the engagement.</p>
+        <p>Free clients often ghost, delay, become demanding, or pivot the project indefinitely — because they feel they have nothing to lose. The cost to them of wasting your time is zero.</p>
+        <p>Charging something also changes how you show up. You take the brief more seriously. You set a scope. You create a delivery expectation. The whole dynamic becomes professional on both sides, which ultimately means better work and a better case study.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">→</span><span class="exp-title">How to frame the introductory rate conversation</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <div class="quote"><p>"I'm selectively taking on a small number of introductory partnerships this quarter where I offer a significantly reduced rate in exchange for the ability to use the work in my portfolio and a testimonial at the end. I think your business would make a compelling case study — would that arrangement interest you?"</p></div>
+        <p>Notice the structure: <strong>"selectively"</strong> signals demand and exclusivity. <strong>"introductory partnership"</strong> is mutual and professional rather than charitable. <strong>"compelling case study"</strong> flatters them while explaining your honest motivation. You're choosing them, not begging them.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Non-negotiable conditions on every deal</div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">1</span><span class="exp-title">Full publishing rights — always confirm in writing first</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body"><p>Before starting any project at any rate, confirm in writing that you can post the work on your website, Instagram, portfolio platforms, and pitches — forever, without needing permission each time. A message thread confirmation counts. A signed brief is better. Without this, you might do your best work ever and be unable to show it because the client got anxious about public visibility later.</p></div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">2</span><span class="exp-title">Written testimonial — ask on delivery day at peak happiness</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body"><p>Ask for the testimonial the moment you deliver the final work — when the excitement is highest and they're seeing the full transformation for the first time. Push gently for specificity: "How do you think this will change how customers perceive you?" A quote about results — "this makes us look like we've been doing this for 10 years" — is ten times more persuasive than "Ibrahim was great to work with and very professional."</p></div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">3</span><span class="exp-title">Hard expiry on the discount — say it clearly before starting</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <div class="quote"><p>"Just so we're aligned — this rate is specific to this first project. If we work together again, or if you refer someone to me, it would be at my standard rate. Happy to share that now so there's no surprise later."</p></div>
+        <p>Most good clients respect this completely. The ones who push back are exactly who you want to filter out early. This also subtly signals that you expect the work to be good enough to justify working together again — which creates a quiet confidence that's hard to replicate any other way.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">4</span><span class="exp-title">You lead creative direction — cap revisions at two rounds</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body"><p>Cap revisions at two rounds from the beginning: "I'll present three strong directions at the start, then we refine together — I find two rounds of revisions is usually plenty to get to something we're both genuinely proud of." This is a portfolio piece. If the client overrides every decision, the final work won't reflect your ability or aesthetic — which defeats the entire purpose of the arrangement. Two rounds also creates natural urgency and prevents projects from becoming endless.</p></div>
+    </div>
+
+    <div class="section-label">Pre-project checklist</div>
+    <ul class="checklist" id="cl-pricing">
+      <li onclick="doCheck(this,'pricing',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Publishing rights confirmed in writing before any work begins</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'pricing',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Rate and full scope defined clearly and agreed before starting</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'pricing',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Hard expiry on the rate communicated upfront in the conversation</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'pricing',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Revision rounds capped at 2 and stated at project kickoff</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'pricing',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Testimonial request planned and ready to send on delivery day</span><span class="chk-xp">+15 XP</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ─── SPEC WORK ─── -->
+<div class="panel" id="panel-specwork">
+  <div class="ph">
+    <div class="ph-eye">Execution</div>
+    <h1 class="ph-title">Spec Work <em>Process</em></h1>
+    <p class="ph-desc">The complete 5-stage system for creating portfolio pieces without a client — and how to turn each finished piece into a real door opener.</p>
+    <div class="ph-xp">✦ Read this section to earn +50 XP</div>
+  </div>
+  <div class="pb">
+    <div class="quote"><p>Spec work done badly looks like fan art. Done well, it looks like a real case study that happens to not have a paying client behind it. The brief you write before starting is what makes the difference.</p><cite>— The standard to aim for</cite></div>
+
+    <div class="section-label">The 5 stages in full</div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">01</span><span class="exp-title">Pick the right target business</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>Don't just pick businesses with bad logos. Pick businesses whose problem a future paying client could recognise themselves in. The best candidates have an existing product or service worth being proud of — you're showing what they could look like if they invested properly in their brand.</p>
+        <p><strong>The right target has three qualities:</strong></p>
+        <p><strong>1. A visible branding problem</strong> — inconsistent social feed, an amateurish logo, no visual system at all, mismatched fonts and colours across touchpoints.</p>
+        <p><strong>2. A product or service people actually want</strong> — a failing business makes the "what could be" story hard to tell convincingly. A good business with bad branding makes it effortless.</p>
+        <p><strong>3. Relevance to your target clients</strong> — if you want to serve F&B businesses, do F&B spec work. The portfolio should attract the exact type of client you want to keep working with.</p>
+        <p><strong>Avoid:</strong> Businesses that are objectively failing or closing — the upgrade story falls flat. Also avoid anything so obscure that no prospective client could place it.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">02</span><span class="exp-title">Write a real brief — before opening Figma or Illustrator</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>This is the step most people skip, and it's what separates a portfolio piece from a collection of pretty things. Before any design software, write down:</p>
+        <p><strong>Business overview:</strong> What do they do, who do they serve, what makes them genuinely good at what they do?</p>
+        <p><strong>The branding problem:</strong> What does their current visual identity fail to communicate? What first impression does it create, versus the one it should?</p>
+        <p><strong>Target audience:</strong> Who is the ideal customer for this business? What visual language do they respond to? What signals trust vs. distrust to them?</p>
+        <p><strong>Strategic direction:</strong> What feeling should the new identity create? What values need to come through? What aesthetic territory are you working in — and what references are you drawing from?</p>
+        <p><strong>Constraints:</strong> Industry conventions, cultural context specific to Brunei, the appropriate budget register (premium vs. approachable vs. playful).</p>
+        <p>This brief becomes part of your case study and is often what most impresses prospective clients — because it proves you think strategically before touching any design tool.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">03</span><span class="exp-title">Do the full scope — not just a logo</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>A logo alone is not a portfolio piece. Clients buy confidence in a complete system. Show them you can deliver it all the way:</p>
+        <p><strong>Minimum:</strong> Logo + variations · Colour palette · Type pairing · Business card mockup · Instagram profile or feed mockup · One social content template</p>
+        <p><strong>Strong additions:</strong> Signage or packaging mockup · Brand guideline one-pager · Before/after social feed comparison · Short video showing the system in use</p>
+        <p>The question a partial portfolio piece leaves in a client's mind is "can they actually finish this?" A complete system answers it definitively before they've asked.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">04</span><span class="exp-title">Present as a case study — not a gallery</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>The format that converts prospective clients consistently:</p>
+        <p><strong>Opening paragraph:</strong> The business, who they serve, and what their branding problem was. Include the before screenshot. Be specific and respectful — you're diagnosing an opportunity, not mocking them.</p>
+        <p><strong>Strategy paragraph:</strong> What direction you chose and why. What you rejected and why. What the new identity needs to communicate. This is where your thinking is visible to a prospective client reading the case study.</p>
+        <p><strong>The work:</strong> Full system presented cleanly. Multiple mockups in real-world context. Don't just show the logo floating on white — show it on a business card, on a shopfront, in a social post as it would actually appear.</p>
+        <p><strong>Closing line:</strong> What would change. Keep it grounded and forward-looking: "A coherent identity that positions [Business] as the premium choice in their category, allowing them to charge accordingly."</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">05</span><span class="exp-title">DM the actual business once the piece is done</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p>This is where spec work becomes doubly valuable. Once the piece is done, message the actual business owner. You'll get one of three outcomes — all of them positive:</p>
+        <p>They love it and want to use it → potential paying client. They're flattered and remember you → warm relationship for when they're ready. They don't respond → no loss, you still have the portfolio piece to show everyone else.</p>
+        <div class="quote"><p>"Hi [Name] — I work in brand design and recently put together a concept for [Business Name] as part of some personal portfolio work. I'd love to share it with you if you're open to seeing it. No strings attached at all — I just think there's a great brand story in what you've built and wanted to show you what it could look like."</p></div>
+        <p><strong>Why this lands in Brunei specifically:</strong> The market is small enough that a genuine, personal message about a specific business stands out immediately. Most owners are used to generic pitches. A message that's clearly about their business — with real creative work already done behind it — is almost impossible not to respond to.</p>
+      </div>
+    </div>
+
+    <div class="section-label">First spec project — your action checklist</div>
+    <ul class="checklist" id="cl-specwork">
+      <li onclick="doCheck(this,'specwork',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Identify your first spec target and confirm it meets the 3 criteria</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'specwork',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Write the full brief (audience, problem, direction, constraints)</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'specwork',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Complete the full scope — logo system, palette, type, 3+ mockups</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'specwork',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Write the one-page case study following problem → strategy → result</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'specwork',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">DM the real business and share the work with no strings attached</span><span class="chk-xp">+20 XP</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ─── PERSONAL BRAND ─── -->
+<div class="panel" id="panel-personalbrand">
+  <div class="ph">
+    <div class="ph-eye">Visibility</div>
+    <h1 class="ph-title">Personal Brand <em>System</em></h1>
+    <p class="ph-desc">How to use ibrahimsatria._ strategically to attract clients for Genzi Studio. The agency builds proof — your personal brand builds the person behind the proof.</p>
+    <div class="ph-xp">✦ Read this section to earn +50 XP</div>
+  </div>
+  <div class="pb">
+    <div class="quote"><p>In Brunei's relationship-driven market, clients hire people they feel they understand. The personal brand builds that understanding before a business conversation ever happens.</p><cite>— Why both accounts need to be active and distinct</cite></div>
+
+    <div class="section-label">Two accounts, two different jobs</div>
+    <div class="grid-2">
+      <div class="card"><div class="card-eye">ibrahimsatria._</div><div class="card-title">Trust and perspective</div><div class="card-body">Show your thinking, your creative point of view, your founder journey, your reads on the local market. People follow people. This is where strangers decide whether they like how your mind works — long before they're ready to hire anyone.</div><div class="card-tag">Top of the funnel — earns attention</div></div>
+      <div class="card"><div class="card-eye">@genzistudio</div><div class="card-title">Credibility and proof</div><div class="card-body">Show finished case studies, before/afters, client wins, agency POVs on branding. This is where someone already considering an agency confirms you're the right one. Less personality, more receipts.</div><div class="card-tag">Bottom of the funnel — converts intent</div></div>
+    </div>
+    <p class="body-text">Both bios link to each other. Both feeds get posts each week. The personal account stays on, even when the agency feels louder — because the personal account is what makes the agency feel human.</p>
+
+    <div class="section-label">The 3 content pillars for ibrahimsatria._</div>
+    <div class="grid-3">
+      <div class="pillar">
+        <div class="pillar-num">Pillar 01</div>
+        <div class="pillar-title">Process &amp; craft</div>
+        <div class="pillar-body">Show how a project moves from blank brief to finished system. Concept sketches. Type explorations. Reasons you rejected option B. This is where you prove you think strategically — not just visually.</div>
+        <div class="example-box">"Three logo directions I explored for [Café]. Why I chose the one I did — and what the rejected ones taught me about the brand."</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">Pillar 02</div>
+        <div class="pillar-title">Strategic POV on Brunei</div>
+        <div class="pillar-body">Sharp, specific opinions on why local SMEs underinvest in brand, what BSB businesses get wrong about Instagram, what good looks like in a market this small. This builds you as a thinker, not just a producer.</div>
+        <div class="example-box">"Most Brunei F&amp;B brands look like they were designed in 2014. Here's what they're losing because of it — and what changing it would actually cost."</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">Pillar 03</div>
+        <div class="pillar-title">Founder journey</div>
+        <div class="pillar-body">The honest behind-the-scenes of building Genzi Studio. Wins, missed pitches, lessons. People back founders they've watched grow. This pillar is what turns followers into referrers a year from now.</div>
+        <div class="example-box">"First six months of Genzi Studio: 0 clients to 3. Here's what worked, what didn't, and what I'd do differently if I started today."</div>
+      </div>
+    </div>
+
+    <div class="section-label">The conversion funnel between your accounts</div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">→</span><span class="exp-title">How a stranger becomes a paying client</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p><strong>Step 1 — Discovery:</strong> They see your personal content shared by someone they trust, or it shows up in their feed because the local creative scene is small and the algorithm notices.</p>
+        <p><strong>Step 2 — Following:</strong> They like one or two posts, scroll your feed, decide your perspective is useful enough to follow. They're not a client yet — they're an audience member.</p>
+        <p><strong>Step 3 — Cross-over:</strong> A post mentions @genzistudio, or a case study lands. They click through. They see proof. They start thinking "their work is good — and I already trust the person behind it."</p>
+        <p><strong>Step 4 — Trigger:</strong> Months later, they need a brand. You're the first name that comes to mind. They DM. You haven't pitched once.</p>
+        <p>This is what consistent personal content buys you. It's slow at first, then suddenly compounds — because every post adds to the asset, and the local market is small enough that consistency alone creates dominance.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">→</span><span class="exp-title">The bio + link strategy that ties both accounts together</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <p><strong>ibrahimsatria._ bio:</strong> One line on what you do, one line on who you serve, link to @genzistudio. Something like: "Brand designer building Genzi Studio in Brunei. Notes on craft, strategy, and growing an agency from zero. → @genzistudio"</p>
+        <p><strong>@genzistudio bio:</strong> Agency positioning line, sectors you serve, link back to your personal. Something like: "Brand &amp; identity studio for Brunei's next generation of businesses. Founded by @ibrahimsatria._ · DM to start a conversation."</p>
+        <p>Both bios should feel like two sides of the same brand, not two separate identities. A stranger should land on either one and immediately understand the relationship between them.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Weekly content rhythm — sustainable, not heroic</div>
+    <p class="body-text">Aim for consistency, not volume. The single biggest mistake new creators make is posting daily for two weeks and then disappearing for two months. That pattern actively damages trust. A predictable, slower rhythm beats a chaotic faster one every time.</p>
+    <div class="grid-3">
+      <div class="card"><div class="card-eye">Monday</div><div class="card-title">Process post</div><div class="card-body">A behind-the-scenes shot from current work — a concept exploration, a colour study, a rejected direction with why it didn't fit. Pillar 01.</div></div>
+      <div class="card"><div class="card-eye">Wednesday</div><div class="card-title">Perspective post</div><div class="card-body">A specific opinion on something happening in the local market. A take on a brand you walked past. Pillar 02. This is your highest-leverage content type.</div></div>
+      <div class="card"><div class="card-eye">Friday</div><div class="card-title">Story or founder note</div><div class="card-body">A reflection, a lesson learned this week, an honest update on the agency journey. Pillar 03. Lower polish, higher humanity.</div></div>
+    </div>
+
+    <div class="section-label">Personal brand action checklist</div>
+    <ul class="checklist" id="cl-personalbrand">
+      <li onclick="doCheck(this,'personalbrand',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Update ibrahimsatria._ bio with positioning + link to @genzistudio</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'personalbrand',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Update @genzistudio bio with positioning + link to personal account</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'personalbrand',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Write your first process post showing real work in progress</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'personalbrand',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Write your first perspective post — a sharp take on local SME branding</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'personalbrand',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Write your first founder journey post — honest, not polished</span><span class="chk-xp">+15 XP</span></li>
+      <li onclick="doCheck(this,'personalbrand',15)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Commit to a 3-post-per-week schedule for the next 4 weeks</span><span class="chk-xp">+15 XP</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ─── OUTREACH ─── -->
+<div class="panel" id="panel-outreach">
+  <div class="ph">
+    <div class="ph-eye">Client Acquisition</div>
+    <h1 class="ph-title">Outreach <em>Playbook</em></h1>
+    <p class="ph-desc">Discovery-first outreach for Brunei SMEs. The scripts, channels, and sequences that start real conversations — not pitches that get ignored.</p>
+    <div class="ph-xp">✦ Read this section to earn +50 XP</div>
+  </div>
+  <div class="pb">
+    <div class="quote"><p>Cold pitches don't work in Brunei. Specific observations do. The difference between the two is whether the business owner feels seen — or marketed to.</p><cite>— The mindset that opens doors in a small, relationship-driven market</cite></div>
+
+    <div class="section-label">The 4 outreach channels — ranked by signal</div>
+    <div class="grid-2">
+      <div class="card"><div class="card-eye">Channel 1 · Highest signal</div><div class="card-title">Instagram DM after spec work</div><div class="card-body">You did the work first. Message them with the finished concept attached. This is the single highest-converting outreach format you have access to — because it's impossible to read as a generic pitch.</div><div class="card-tag">Use for: businesses you've already designed for</div></div>
+      <div class="card"><div class="card-eye">Channel 2 · High signal</div><div class="card-title">Warm intro via mutual contact</div><div class="card-body">A friend, former colleague, or someone you've worked with introduces you. The introduction does the trust-building work upfront. In BSB this is the most natural way clients flow — leverage your network deliberately, not passively.</div><div class="card-tag">Use for: target businesses one degree away</div></div>
+      <div class="card"><div class="card-eye">Channel 3 · Medium signal</div><div class="card-title">Specific-observation DM</div><div class="card-body">Cold DM, but lead with a real observation about their business — not a service pitch. The bar is high: if your observation could apply to any business in the same category, it's not specific enough yet. Rewrite until it couldn't.</div><div class="card-tag">Use for: businesses where spec is not yet feasible</div></div>
+      <div class="card"><div class="card-eye">Channel 4 · Slow-burn signal</div><div class="card-title">LinkedIn presence + events</div><div class="card-body">Doesn't book clients today. Builds visibility so that when you DM, or when they need a designer, you're already a familiar name. Post weekly. Show up at Chamber of Commerce events, BEDB sessions, youth entrepreneurship meetups.</div><div class="card-tag">Use for: long-term positioning</div></div>
+    </div>
+
+    <div class="section-label">3 outreach scripts you can use this week</div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">01</span><span class="exp-title">Script — Spec work delivery (Channel 1)</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <div class="quote"><p>"Hi [Name] — I work in brand design and recently put together a concept for [Business Name] as part of some personal portfolio work. No strings attached — I just thought there was a great brand story in what you've built, and I wanted to show you what it could look like. Happy to share the file if you're open to it."</p></div>
+        <p><strong>Why it works:</strong> You're not asking for anything. You're offering something. The phrase "no strings attached" disarms the natural defensive reaction owners have to anyone DMing about their business. You've already done the work, so they don't have to imagine — they just have to look.</p>
+        <p><strong>Follow-up if no reply in 5 days:</strong> "Hey — totally understand if it's not the right time. Wanted to send the file over anyway in case it's useful down the line. Take care." Then send it. Send the file regardless. That's the move that surprises them.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">02</span><span class="exp-title">Script — Warm intro request (Channel 2)</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <div class="quote"><p>"Hey [Mutual Contact] — quick favour. I'm growing my brand design studio (Genzi Studio) and I think [Target Business] could really benefit from a brand refresh. I know you work with / know [Owner Name] — would you be open to a quick introduction? Happy to share my portfolio first so you can decide if it makes sense."</p></div>
+        <p><strong>Why it works:</strong> You give them an easy out ("if it makes sense"). You share proof upfront so they're not vouching blind. You make the ask small and specific — an intro, not an endorsement. In Brunei, people are willing to make introductions; they just need to feel safe doing it.</p>
+        <p><strong>What to send them:</strong> Your portfolio link, 1–2 lines on why this target business specifically, and a screenshot of one piece of relevant work. Three things, no more. Make it copy-pasteable so they can forward it directly to the owner without rewriting anything.</p>
+      </div>
+    </div>
+    <div class="exp">
+      <div class="exp-trigger" onclick="toggleExp(this)"><div class="exp-left"><span class="exp-num">03</span><span class="exp-title">Script — Specific-observation cold DM (Channel 3)</span></div><span class="exp-arrow">▼</span></div>
+      <div class="exp-body">
+        <div class="quote"><p>"Hi [Name] — I came across [Business] recently and noticed your Instagram hasn't been updated in about 3 months. I had a few specific ideas for how the visual identity could work harder for you. Open to a quick 20-minute conversation? No pitch — just a chat."</p></div>
+        <p><strong>Why it works:</strong> The specific observation ("3 months") signals you actually looked. The phrase "no pitch — just a chat" disarms expectation of being sold to. The time-boxed ask ("20 minutes") is small enough to say yes to without anxiety.</p>
+        <p><strong>What to avoid:</strong> Anything that could apply to any other business. "I love what you're doing" is dead on arrival. "Your logo could be stronger" is too prescriptive. The sweet spot is specific + neutral + curious — a doctor's observation, not a salesperson's pitch.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Priority target sectors in BSB right now</div>
+    <div class="grid-2">
+      <div class="card"><div class="card-eye">Sector 1</div><div class="card-title">Cafés, kopitiams, dessert spots</div><div class="card-body">Visible to walk-by traffic, social-media-dependent, and almost universally underbranded. The owner is usually the operator — meaning you can DM them directly, not a marketing department. High close rate when the observation is sharp.</div><div class="card-tag">Best DM channel: Instagram</div></div>
+      <div class="card"><div class="card-eye">Sector 2</div><div class="card-title">Professional services</div><div class="card-body">Accounting firms, legal practices, clinics, consultancies. Real budgets, branding directly affects perceived trust and pricing power. Slower to close than F&B, but each deal is worth 3–5x. Best approached via warm intro or LinkedIn.</div><div class="card-tag">Best DM channel: LinkedIn or warm intro</div></div>
+      <div class="card"><div class="card-eye">Sector 3</div><div class="card-title">Retail &amp; lifestyle brands</div><div class="card-body">Boutiques, salons, fitness studios, wellness brands. Aesthetic-driven sectors where great branding is a direct competitive moat. Owners typically care about visual quality intrinsically — easy conversations once the door opens.</div><div class="card-tag">Best DM channel: Instagram</div></div>
+      <div class="card"><div class="card-eye">Sector 4</div><div class="card-title">New businesses launching</div><div class="card-body">Anyone within the first 6 months of launch. They have no brand baggage, decision-making is fast, and they often have a small launch budget specifically earmarked for identity. Watch local launch announcements weekly.</div><div class="card-tag">Best DM channel: any — be fastest</div></div>
+    </div>
+
+    <div class="section-label">The weekly outreach rhythm</div>
+    <p class="body-text">Outreach is a numbers game until it becomes a referral game. The first 90 days are about volume in the right direction — specific, considered messages sent consistently to the right sectors. Set a target you can actually hit every week without burning out, and protect that time on your calendar like a client meeting.</p>
+    <div class="grid-3">
+      <div class="card"><div class="card-eye">Monday</div><div class="card-title">Research &amp; pick targets</div><div class="card-body">Identify 5 specific businesses you'll reach out to this week. Look at their current branding, social activity, customer base. Take notes that will become your specific observation.</div></div>
+      <div class="card"><div class="card-eye">Tuesday – Thursday</div><div class="card-title">Send the messages</div><div class="card-body">Send personalised DMs across the 5 targets — spread out, not all at once. Don't bulk-send templated messages. Quality of message beats quantity of outreach in this market every single time.</div></div>
+      <div class="card"><div class="card-eye">Friday</div><div class="card-title">Follow up &amp; log results</div><div class="card-body">Follow up on anyone who hasn't replied after 5 days. Log responses in a simple sheet: target, channel, message sent, response, next action. Patterns emerge after 4 weeks that change your approach.</div></div>
+    </div>
+
+    <div class="section-label">Outreach action checklist</div>
+    <ul class="checklist" id="cl-outreach">
+      <li onclick="doCheck(this,'outreach',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Build a target list of 20 specific BSB businesses to approach</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'outreach',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Write one specific observation for each of your top 5 targets</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'outreach',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Send your first spec-delivery DM to a business you've designed for</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'outreach',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Ask for one warm introduction from someone in your network</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'outreach',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Send 5 specific-observation cold DMs across Tue–Thu this week</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'outreach',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Set up a simple outreach log (target, channel, date, response)</span><span class="chk-xp">+20 XP</span></li>
+      <li onclick="doCheck(this,'outreach',20)"><div class="chk-ripple"></div><div class="chk-box"></div><span class="chk-text">Block a recurring weekly hour on your calendar for outreach</span><span class="chk-xp">+20 XP</span></li>
+    </ul>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   GENZI STUDIO GROWTH OS — interaction layer
+═══════════════════════════════════════════════════════ */
+
+/* ─── STATE ─── */
+let xp = 0;
+let level = 1;
+const LEVELS = [
+  {n:1, name:'Founder',      need:0},
+  {n:2, name:'Strategist',   need:200},
+  {n:3, name:'Builder',      need:450},
+  {n:4, name:'Authority',    need:750},
+  {n:5, name:'Agency Owner', need:1100}
+];
+const sectionsRead = new Set(['overview']); // overview is free
+const SECTION_XP = 50;
+let tasksDone = 0;
+const TASKS_TOTAL = document.querySelectorAll('.checklist li').length;
+document.getElementById('task-total').textContent = TASKS_TOTAL;
+const sectionTasks = {}; // panel id -> {done, total}
+document.querySelectorAll('.checklist').forEach(cl=>{
+  const id = cl.id.replace('cl-','');
+  const lis = cl.querySelectorAll('li');
+  lis.forEach((li, i) => { li.dataset.taskId = id + ':' + i; });
+  sectionTasks[id] = {done:0, total:lis.length};
+});
+
+/* ─── PERSISTENCE STATE ─── */
+const STORAGE_KEY = 'genzi-os-state-v1';
+let soundEnabled = true;
+let isHydrating = false; // suppress sound/toast/flash while restoring
+function saveState(){
+  if(isHydrating) return;
+  try{
+    const checked = Array.from(document.querySelectorAll('.checklist li.checked')).map(li => li.dataset.taskId);
+    const activePanelEl = document.querySelector('.panel.active');
+    const activePanel = activePanelEl ? activePanelEl.id.replace('panel-','') : 'overview';
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      v:1, xp, level,
+      sections: Array.from(sectionsRead),
+      checked, activePanel, sound: soundEnabled
+    }));
+  }catch(e){ /* storage unavailable — silently ignore */ }
+}
+function loadState(){
+  try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; }
+  catch(e){ return null; }
+}
+function resetProgress(){
+  if(!confirm('Reset all progress? This clears your XP, completed tasks, and sections read.')) return;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  location.reload();
+}
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  document.getElementById('snd-btn').classList.toggle('muted', !soundEnabled);
+  saveState();
+}
+
+/* ─── WEB AUDIO ENGINE ─── */
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+function ensureAudio(){ if(AC.state === 'suspended') AC.resume(); }
+function tone(freq, dur, type='sine', vol=0.18, delay=0){
+  const o = AC.createOscillator();
+  const g = AC.createGain();
+  o.type = type;
+  o.frequency.value = freq;
+  o.connect(g); g.connect(AC.destination);
+  const t = AC.currentTime + delay;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t);
+  o.stop(t + dur + 0.02);
+}
+function playCheck(){ if(!soundEnabled || isHydrating) return; ensureAudio(); tone(880, 0.12, 'sine', 0.15); tone(1320, 0.14, 'sine', 0.10, 0.04); }
+function playSection(){ if(!soundEnabled || isHydrating) return; ensureAudio(); [523.25, 659.25, 783.99, 1046.5].forEach((f,i)=>tone(f, 0.35, 'triangle', 0.14, i*0.06)); }
+function playLevelUp(){
+  if(!soundEnabled || isHydrating) return;
+  ensureAudio();
+  const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+  notes.forEach((f,i)=>tone(f, 0.4, 'triangle', 0.18, i*0.09));
+  tone(1568, 0.8, 'sine', 0.12, 0.55);
+}
+function playNav(){ if(!soundEnabled || isHydrating) return; ensureAudio(); tone(440, 0.06, 'sine', 0.08); }
+
+/* ─── PANEL SWITCHING ─── */
+function goPanel(id){
+  playNav();
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('panel-' + id);
+  if(panel) panel.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.p === id));
+  document.getElementById('main-scroll').scrollTop = 0;
+  saveState();
+  // Wait for layout, then check if panel already fits in view (auto-complete short panels)
+  requestAnimationFrame(() => requestAnimationFrame(checkSectionComplete));
+}
+
+/* ─── SECTION COMPLETION (scroll to bottom = "read") ─── */
+function checkSectionComplete(){
+  const main = document.getElementById('main-scroll');
+  const activePanel = document.querySelector('.panel.active');
+  if(!main || !activePanel) return;
+  const panelId = activePanel.id.replace('panel-', '');
+  if(sectionsRead.has(panelId)) return;
+  const fitsInView = main.scrollHeight <= main.clientHeight + 4;
+  const reachedBottom = main.scrollTop + main.clientHeight >= main.scrollHeight - 48;
+  if(fitsInView || reachedBottom) awardSection(panelId);
+}
+document.querySelectorAll('.nav-item').forEach(n => {
+  n.addEventListener('click', () => goPanel(n.dataset.p));
+});
+
+function awardSection(id){
+  if(sectionsRead.has(id)) return;
+  sectionsRead.add(id);
+  addXP(SECTION_XP);
+  if(!isHydrating){
+    playSection();
+    flashScreen();
+    toast('Section unlocked', '+' + SECTION_XP + ' XP');
+  }
+  // mark nav done badge
+  const nav = document.querySelector('.nav-item[data-p="' + id + '"]');
+  if(nav) nav.classList.add('done');
+  updateProgress();
+  saveState();
+}
+
+/* ─── EXPANDABLE ─── */
+function toggleExp(trigger){
+  if(soundEnabled){ ensureAudio(); tone(660, 0.04, 'sine', 0.06); }
+  trigger.classList.toggle('open');
+}
+
+/* ─── CHECKLIST ─── */
+function doCheck(li, panelId, gain){
+  const wasChecked = li.classList.contains('checked');
+  const box = li.querySelector('.chk-box');
+  if(wasChecked){
+    // UNCHECK — refund XP
+    li.classList.remove('checked');
+    if(box) box.textContent = '';
+    tasksDone = Math.max(0, tasksDone - 1);
+    if(sectionTasks[panelId]) sectionTasks[panelId].done = Math.max(0, sectionTasks[panelId].done - 1);
+    if(gain > 0) addXP(-gain);
+    if(!isHydrating){
+      if(soundEnabled){ ensureAudio(); tone(440, 0.06, 'sine', 0.06); tone(330, 0.08, 'sine', 0.05, 0.03); }
+      if(gain > 0){
+        const rect = li.getBoundingClientRect();
+        xpFloat(rect.left + rect.width * 0.15, rect.top + rect.height / 2 - 18, -gain);
+      }
+    }
+  } else {
+    // CHECK — award XP
+    li.classList.add('checked');
+    if(box) box.textContent = '✓';
+    tasksDone++;
+    if(sectionTasks[panelId]) sectionTasks[panelId].done++;
+    if(gain > 0) addXP(gain);
+    if(!isHydrating){
+      playCheck();
+      const rect = li.getBoundingClientRect();
+      const cx = rect.left + rect.width * 0.15;
+      const cy = rect.top + rect.height / 2;
+      particleBurst(cx, cy);
+      if(gain > 0) xpFloat(cx, cy - 18, gain);
+    }
+  }
+  updateProgress();
+  saveState();
+}
+
+/* ─── PARTICLE BURST ─── */
+function particleBurst(cx, cy){
+  const colors = ['#d4a574','#c45a3a','#5aaa72','#f0ead8'];
+  const n = 14;
+  for(let i = 0; i < n; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 4 + Math.random() * 4;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = cx + 'px';
+    p.style.top = cy + 'px';
+    p.style.background = colors[i % colors.length];
+    const angle = (i / n) * Math.PI * 2 + Math.random() * 0.5;
+    const dist = 50 + Math.random() * 60;
+    const dur = 0.7 + Math.random() * 0.4;
+    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    p.style.setProperty('--dur', dur + 's');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), dur * 1000 + 100);
+  }
+}
+
+/* ─── XP FLOAT ─── */
+function xpFloat(x, y, amount){
+  const el = document.createElement('div');
+  el.className = 'xp-pop';
+  const sign = amount >= 0 ? '+' : '−';
+  el.textContent = sign + Math.abs(amount) + ' XP';
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  if(amount < 0){
+    el.style.color = 'var(--sienna)';
+    el.style.textShadow = '0 0 12px rgba(196,90,58,.5)';
+  }
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+/* ─── XP / LEVEL ─── */
+function addXP(amount){
+  xp = Math.max(0, xp + amount);
+  // recompute level from XP
+  let newLevel = 1;
+  for(let i = LEVELS.length - 1; i >= 0; i--){
+    if(xp >= LEVELS[i].need){ newLevel = LEVELS[i].n; break; }
+  }
+  if(newLevel > level){
+    level = newLevel;
+    showLevelUp(level);
+  } else if(newLevel < level){
+    // silent level-down (e.g. user unchecked tasks)
+    level = newLevel;
+  }
+  renderXP();
+}
+
+function renderXP(){
+  const cur = LEVELS.find(l => l.n === level);
+  const next = LEVELS.find(l => l.n === level + 1);
+  const pctBase = cur.need;
+  const pctTop = next ? next.need : cur.need + 200;
+  const pct = next ? Math.min(100, ((xp - pctBase) / (pctTop - pctBase)) * 100) : 100;
+  document.getElementById('xp-fill').style.width = pct + '%';
+  document.getElementById('xp-pts').textContent = xp + ' XP';
+  document.getElementById('xp-next').textContent = next ? '/ ' + next.need + ' next level' : '· max level';
+  document.getElementById('sb-level').textContent = 'Lv ' + level + ' · ' + cur.name;
+}
+
+function showLevelUp(lv){
+  if(isHydrating) return; // don't replay overlay on reload
+  const cur = LEVELS.find(l => l.n === lv);
+  document.getElementById('lu-num').textContent = lv;
+  document.getElementById('lu-title').textContent = cur.name;
+  const ov = document.getElementById('levelup-overlay');
+  ov.classList.add('show');
+  playLevelUp();
+  // confetti burst at center
+  setTimeout(() => particleBurst(window.innerWidth / 2, window.innerHeight / 2), 50);
+  setTimeout(() => particleBurst(window.innerWidth / 2 - 80, window.innerHeight / 2), 200);
+  setTimeout(() => particleBurst(window.innerWidth / 2 + 80, window.innerHeight / 2), 350);
+}
+function dismissLevelUp(){
+  document.getElementById('levelup-overlay').classList.remove('show');
+}
+
+/* ─── PROGRESS ─── */
+function updateProgress(){
+  // overall = sections read% + tasks done%, equally weighted
+  const totalSections = 7; // including overview
+  const sectionPct = sectionsRead.size / totalSections;
+  const taskPct = TASKS_TOTAL > 0 ? tasksDone / TASKS_TOTAL : 0;
+  const overall = Math.round(((sectionPct + taskPct) / 2) * 100);
+  document.getElementById('ov-pct').textContent = overall + '%';
+  document.getElementById('ov-fill').style.width = overall + '%';
+
+  // per-section overview cards
+  Object.keys(sectionTasks).forEach(id => {
+    const st = sectionTasks[id];
+    const sectionRead = sectionsRead.has(id);
+    const taskFrac = st.total > 0 ? st.done / st.total : 0;
+    const pct = Math.round(((sectionRead ? 1 : 0) + taskFrac) / 2 * 100);
+    const fill = document.getElementById('opf-' + id);
+    const label = document.getElementById('opl-' + id);
+    if(fill) fill.style.width = pct + '%';
+    if(label) label.textContent = pct + '% complete';
+  });
+
+  document.getElementById('sec-count').textContent = sectionsRead.size - 1; // exclude overview
+  document.getElementById('task-count').textContent = tasksDone;
+}
+
+/* ─── TOAST ─── */
+let toastTimer = null;
+function toast(msg, xpStr){
+  const t = document.getElementById('toast');
+  document.getElementById('t-msg').textContent = msg;
+  document.getElementById('t-xp').textContent = xpStr;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ─── SCREEN FLASH ─── */
+function flashScreen(){
+  const f = document.getElementById('flash');
+  f.style.opacity = '1';
+  setTimeout(() => { f.style.opacity = '0'; }, 180);
+}
+
+/* ─── CANVAS CONSTELLATION BG ─── */
+(function(){
+  const cvs = document.getElementById('bg-canvas');
+  const ctx = cvs.getContext('2d');
+  let w, h, dots;
+  function resize(){
+    w = cvs.width = window.innerWidth;
+    h = cvs.height = window.innerHeight;
+    const count = 55;
+    dots = Array.from({length:count}, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      r: 0.7 + Math.random() * 1.3
+    }));
+  }
+  function frame(){
+    ctx.clearRect(0, 0, w, h);
+    // lines
+    for(let i = 0; i < dots.length; i++){
+      for(let j = i + 1; j < dots.length; j++){
+        const dx = dots[i].x - dots[j].x;
+        const dy = dots[i].y - dots[j].y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if(d < 140){
+          ctx.strokeStyle = 'rgba(212,165,116,' + (0.12 * (1 - d/140)).toFixed(3) + ')';
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(dots[i].x, dots[i].y);
+          ctx.lineTo(dots[j].x, dots[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    // dots
+    dots.forEach(d => {
+      d.x += d.vx; d.y += d.vy;
+      if(d.x < 0 || d.x > w) d.vx *= -1;
+      if(d.y < 0 || d.y > h) d.vy *= -1;
+      ctx.fillStyle = 'rgba(212,165,116,0.55)';
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(frame);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  frame();
+})();
+
+/* ─── HYDRATE FROM LOCALSTORAGE ─── */
+(function hydrate(){
+  const saved = loadState();
+  if(!saved || saved.v !== 1) return;
+  isHydrating = true;
+  xp = typeof saved.xp === 'number' ? saved.xp : 0;
+  level = typeof saved.level === 'number' ? saved.level : 1;
+  (saved.sections || []).forEach(s => sectionsRead.add(s));
+  sectionsRead.forEach(s => {
+    if(s === 'overview') return;
+    const nav = document.querySelector('.nav-item[data-p="' + s + '"]');
+    if(nav) nav.classList.add('done');
+  });
+  (saved.checked || []).forEach(taskId => {
+    const li = document.querySelector('.checklist li[data-task-id="' + taskId + '"]');
+    if(li && !li.classList.contains('checked')){
+      li.classList.add('checked');
+      const box = li.querySelector('.chk-box');
+      if(box) box.textContent = '✓';
+      tasksDone++;
+      const panelId = taskId.split(':')[0];
+      if(sectionTasks[panelId]) sectionTasks[panelId].done++;
+    }
+  });
+  if(saved.activePanel && saved.activePanel !== 'overview'){
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById('panel-' + saved.activePanel);
+    if(panel) panel.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.p === saved.activePanel));
+  }
+  soundEnabled = saved.sound !== false;
+  if(!soundEnabled) document.getElementById('snd-btn').classList.add('muted');
+  isHydrating = false;
+})();
+
+/* ─── KEYBOARD + ACCESSIBILITY ─── */
+document.querySelectorAll('.nav-item').forEach(n => {
+  n.setAttribute('role', 'button');
+  n.setAttribute('tabindex', '0');
+  n.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); goPanel(n.dataset.p); }
+  });
+});
+document.querySelectorAll('.ov-card').forEach(c => {
+  c.setAttribute('role', 'button');
+  c.setAttribute('tabindex', '0');
+  c.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); c.click(); }
+  });
+});
+document.querySelectorAll('.exp-trigger').forEach(t => {
+  t.setAttribute('role', 'button');
+  t.setAttribute('tabindex', '0');
+  t.setAttribute('aria-expanded', 'false');
+  t.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleExp(t); }
+  });
+  const obs = new MutationObserver(() => t.setAttribute('aria-expanded', t.classList.contains('open') ? 'true' : 'false'));
+  obs.observe(t, { attributes:true, attributeFilter:['class'] });
+});
+document.querySelectorAll('.checklist li').forEach(li => {
+  li.setAttribute('role', 'checkbox');
+  li.setAttribute('tabindex', '0');
+  li.setAttribute('aria-checked', li.classList.contains('checked') ? 'true' : 'false');
+  li.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); li.click(); }
+  });
+  const obs = new MutationObserver(() => li.setAttribute('aria-checked', li.classList.contains('checked') ? 'true' : 'false'));
+  obs.observe(li, { attributes:true, attributeFilter:['class'] });
+});
+// Esc dismisses level-up overlay
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    const ov = document.getElementById('levelup-overlay');
+    if(ov.classList.contains('show')) dismissLevelUp();
+  }
+});
+
+/* ─── SCROLL-TO-COMPLETE LISTENER ─── */
+(function(){
+  const main = document.getElementById('main-scroll');
+  let ticking = false;
+  main.addEventListener('scroll', () => {
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { checkSectionComplete(); ticking = false; });
+  }, { passive: true });
+  window.addEventListener('resize', () => requestAnimationFrame(checkSectionComplete));
+})();
+
+/* ─── INIT ─── */
+renderXP();
+updateProgress();
+// In case the restored panel already fits in view, mark it complete after layout
+requestAnimationFrame(() => requestAnimationFrame(checkSectionComplete));
+// Unlock audio on first interaction
+document.addEventListener('click', ensureAudio, { once: true });
+</script>
+
+</body>
+</html>
