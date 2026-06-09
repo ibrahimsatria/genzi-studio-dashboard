@@ -32,7 +32,7 @@ export const PANELS: PanelMeta[] = [
     id: "overview",
     href: "/dashboard",
     icon: "◈",
-    label: "Overview",
+    label: "Today",
     eyebrow: "Mission Control",
     title: "Your",
     titleEm: "Growth OS",
