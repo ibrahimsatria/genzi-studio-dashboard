@@ -22,7 +22,7 @@ export default function Landing() {
 
         <h1 className="mt-5 font-display text-[clamp(2.4rem,6vw,4rem)] font-light leading-[1.05] tracking-[-0.02em] text-cream">
           Build a Brunei agency from{" "}
-          <em className="font-light italic text-brass">zero proof</em> — one section at a time.
+          <em className="font-light italic text-brass">zero proof</em>, one section at a time.
         </h1>
 
         <p className="mt-6 max-w-xl text-balance text-[15px] leading-[1.8] text-cream-mid">
