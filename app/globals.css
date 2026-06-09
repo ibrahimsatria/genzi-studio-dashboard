@@ -61,6 +61,8 @@ html, body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Block trackpad two-finger and iOS edge-swipe back/forward navigation. */
+  overscroll-behavior-x: none;
 }
 
 ::selection { background: var(--brass-glow); color: var(--cream); }
