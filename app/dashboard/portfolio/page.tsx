@@ -7,18 +7,10 @@ import {
   Expandable,
   Checklist,
   SectionTracker,
+  WhenThisGoesWrong,
 } from "@/components/panel";
-
-const tasks = [
-  { text: "Written brief (audience, problem, strategic direction, constraints)", xp: 10, label: "essential" },
-  { text: "Logo + minimum 3 variations (horizontal, stacked, icon only)", xp: 10, label: "essential" },
-  { text: "Full colour palette with named roles and usage rules", xp: 10, label: "essential" },
-  { text: "Typography pairing with at least 3 usage examples in context", xp: 10, label: "essential" },
-  { text: "3+ application mockups (business card, signage or packaging, social)", xp: 10, label: "essential" },
-  { text: "Instagram template set — at least one feed post and one story", xp: 10, label: "strong add" },
-  { text: "Before screenshot + side-by-side comparison for the case study", xp: 10, label: "strong add" },
-  { text: "One-page written case study following problem → strategy → result", xp: 10, label: "strong add" },
-];
+import { PortfolioPieces } from "@/components/metrics";
+import { PANEL_TASKS } from "@/content/tasks";
 
 export default function PortfolioPage() {
   return (
@@ -88,8 +80,39 @@ export default function PortfolioPage() {
           </p>
         </Expandable>
 
+        <WhenThisGoesWrong
+          intro="The portfolio trap isn't bad design — it's building the wrong proof, slowly. Watch for these."
+          items={[
+            {
+              scenario: "You have eight half-finished concepts and zero complete case studies.",
+              fix: (
+                <>
+                  Eight logos is not a portfolio; it&apos;s a graveyard. A prospective client needs to
+                  see one <strong>complete, narrated piece</strong> far more than eight pretty
+                  fragments. Pick the three closest to done, finish them fully — brief, system,
+                  mockups, written case study — and ship those before starting anything new.
+                </>
+              ),
+            },
+            {
+              scenario: "All your pieces are in different sectors, so no single client sees themselves.",
+              fix: (
+                <>
+                  Range feels impressive to you and reads as unfocused to a buyer. If you want F&amp;B
+                  clients, <strong>concentrate your spec work in F&amp;B</strong>. Three pieces in one
+                  sector make you look like the specialist for that sector — which is exactly the
+                  story that converts in a market as small as BSB.
+                </>
+              ),
+            },
+          ]}
+        />
+
+        <SectionLabel>Track your pieces toward the 3–5 goal</SectionLabel>
+        <PortfolioPieces />
+
         <SectionLabel>Full deliverables list — what a complete piece includes</SectionLabel>
-        <Checklist panelId="portfolio" tasks={tasks} />
+        <Checklist panelId="portfolio" tasks={PANEL_TASKS.portfolio} />
 
         <SectionLabel>Best target businesses in Brunei right now</SectionLabel>
         <Grid cols={2}>

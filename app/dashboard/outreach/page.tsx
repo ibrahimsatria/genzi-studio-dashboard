@@ -8,17 +8,10 @@ import {
   Expandable,
   Checklist,
   SectionTracker,
+  WhenThisGoesWrong,
 } from "@/components/panel";
-
-const tasks = [
-  { text: "Build a target list of 20 specific BSB businesses to approach", xp: 20 },
-  { text: "Write one specific observation for each of your top 5 targets", xp: 20 },
-  { text: "Send your first spec-delivery DM to a business you've designed for", xp: 20 },
-  { text: "Ask for one warm introduction from someone in your network", xp: 20 },
-  { text: "Send 5 specific-observation cold DMs across Tue–Thu this week", xp: 20 },
-  { text: "Set up a simple outreach log (target, channel, date, response)", xp: 20 },
-  { text: "Block a recurring weekly hour on your calendar for outreach", xp: 20 },
-];
+import { OutreachLog } from "@/components/metrics";
+import { PANEL_TASKS } from "@/content/tasks";
 
 export default function OutreachPage() {
   return (
@@ -29,6 +22,15 @@ export default function OutreachPage() {
           Cold pitches don&apos;t work in Brunei. Specific observations do. The difference between
           the two is whether the business owner feels seen — or marketed to.
         </Quote>
+
+        <SectionLabel>Your outreach log — track every prospect</SectionLabel>
+        <Body>
+          This is the log this section keeps telling you to set up. Add a prospect the moment you
+          send a DM, then advance it through the stages as the conversation moves. The pipeline
+          funnel on your dashboard reads straight from here — so logging a DM updates your funnel
+          automatically.
+        </Body>
+        <OutreachLog />
 
         <SectionLabel>The 4 outreach channels — ranked by signal</SectionLabel>
         <Grid cols={2}>
@@ -176,8 +178,48 @@ export default function OutreachPage() {
           />
         </Grid>
 
+        <WhenThisGoesWrong
+          intro="Outreach is where rejection lives, so it's where people quietly give up. Here's how the common failures actually read — and what to do instead."
+          items={[
+            {
+              scenario: "You sent 30 DMs and got two replies, and you're ready to quit.",
+              fix: (
+                <>
+                  A 2-of-30 reply rate isn&apos;t failure — for cold outreach it&apos;s roughly
+                  normal, and it&apos;s <strong>fixable at one specific step</strong>. Check the
+                  funnel: low replies almost always means the observation isn&apos;t specific enough.
+                  Rewrite until your opener couldn&apos;t be sent to any other business in the
+                  category, then measure again.
+                </>
+              ),
+            },
+            {
+              scenario: "You're tempted to copy-paste the same message to 50 businesses to save time.",
+              fix: (
+                <>
+                  In a market as small as BSB this <strong>backfires</strong> — owners talk, and a
+                  templated DM that lands twice marks you as a spammer permanently. Five genuinely
+                  specific messages beat fifty generic ones here every single time. Protect quality
+                  over volume; the relationship-driven market punishes shortcuts.
+                </>
+              ),
+            },
+            {
+              scenario: "Someone replied with interest a week ago and the thread just... died.",
+              fix: (
+                <>
+                  Warm leads go cold without a system, not without interest. The outreach log above
+                  exists so nobody falls through — <strong>advance every replied prospect</strong>
+                  and follow up within a few days. &ldquo;Hey, still happy to share those ideas
+                  whenever suits — no rush&rdquo; revives more threads than you&apos;d expect.
+                </>
+              ),
+            },
+          ]}
+        />
+
         <SectionLabel>Outreach action checklist</SectionLabel>
-        <Checklist panelId="outreach" tasks={tasks} />
+        <Checklist panelId="outreach" tasks={PANEL_TASKS.outreach} />
       </div>
       <SectionTracker panelId="outreach" />
     </>

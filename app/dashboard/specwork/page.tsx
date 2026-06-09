@@ -5,15 +5,9 @@ import {
   Expandable,
   Checklist,
   SectionTracker,
+  WhenThisGoesWrong,
 } from "@/components/panel";
-
-const tasks = [
-  { text: "Identify your first spec target and confirm it meets the 3 criteria", xp: 20 },
-  { text: "Write the full brief (audience, problem, direction, constraints)", xp: 20 },
-  { text: "Complete the full scope — logo system, palette, type, 3+ mockups", xp: 20 },
-  { text: "Write the one-page case study following problem → strategy → result", xp: 20 },
-  { text: "DM the real business and share the work with no strings attached", xp: 20 },
-];
+import { PANEL_TASKS } from "@/content/tasks";
 
 export default function SpecWorkPage() {
   return (
@@ -160,8 +154,48 @@ export default function SpecWorkPage() {
           </p>
         </Expandable>
 
+        <WhenThisGoesWrong
+          intro="Spec work has one failure mode everyone hits: you pour days into a concept, send it, and hear nothing. Here's how to make that outcome a non-event."
+          items={[
+            {
+              scenario: "You sent the finished concept and the business never replied.",
+              fix: (
+                <>
+                  Expected — and it costs you nothing, because you led with the portfolio piece, not
+                  a request. Send the file anyway with your 5-day follow-up, then <strong>move
+                  on</strong>. One silent business is one data point; the piece still works on every
+                  future prospect in that sector. Log it in your pipeline as a sent DM and let the
+                  funnel do the accounting.
+                </>
+              ),
+            },
+            {
+              scenario: "The owner replied 'nice, but we can't afford a rebrand right now.'",
+              fix: (
+                <>
+                  That&apos;s a <strong>warm lead, not a no</strong>. Reply: &ldquo;Totally understand
+                  — no pressure at all. I&apos;ll leave the concept with you; if the timing ever
+                  changes, you know where I am.&rdquo; Then keep them on a soft follow-up list.
+                  Businesses that liked your work convert months later far more often than cold ones.
+                </>
+              ),
+            },
+            {
+              scenario: "Your spec piece is starting to look like generic fan art, not a case study.",
+              fix: (
+                <>
+                  You skipped the brief. Stop designing and write it: who they serve, what their
+                  current identity fails to say, the strategic direction. The brief is what makes spec
+                  work read as <strong>professional rather than decorative</strong> — without it,
+                  even beautiful work won&apos;t convince a paying client you think strategically.
+                </>
+              ),
+            },
+          ]}
+        />
+
         <SectionLabel>First spec project — your action checklist</SectionLabel>
-        <Checklist panelId="specwork" tasks={tasks} />
+        <Checklist panelId="specwork" tasks={PANEL_TASKS.specwork} />
       </div>
       <SectionTracker panelId="specwork" />
     </>

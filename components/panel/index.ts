@@ -15,3 +15,4 @@ export {
 export { Expandable } from "./Expandable";
 export { Checklist, type ChecklistTask } from "./Checklist";
 export { SectionTracker } from "./SectionTracker";
+export { WhenThisGoesWrong, type RiskItem } from "./WhenThisGoesWrong";

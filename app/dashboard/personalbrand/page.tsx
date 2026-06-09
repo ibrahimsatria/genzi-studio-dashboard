@@ -9,16 +9,9 @@ import {
   Expandable,
   Checklist,
   SectionTracker,
+  WhenThisGoesWrong,
 } from "@/components/panel";
-
-const tasks = [
-  { text: "Update ibrahimsatria._ bio with positioning + link to @genzistudio", xp: 15 },
-  { text: "Update @genzistudio bio with positioning + link to personal account", xp: 15 },
-  { text: "Write your first process post showing real work in progress", xp: 15 },
-  { text: "Write your first perspective post — a sharp take on local SME branding", xp: 15 },
-  { text: "Write your first founder journey post — honest, not polished", xp: 15 },
-  { text: "Commit to a 3-post-per-week schedule for the next 4 weeks", xp: 15 },
-];
+import { PANEL_TASKS } from "@/content/tasks";
 
 export default function PersonalBrandPage() {
   return (
@@ -147,8 +140,47 @@ export default function PersonalBrandPage() {
           />
         </Grid>
 
+        <WhenThisGoesWrong
+          intro="A personal brand fails quietly — not in a dramatic flop, but in a slow fade. These are the patterns to catch early."
+          items={[
+            {
+              scenario: "You posted hard for two weeks, then went silent for a month.",
+              fix: (
+                <>
+                  This bursting-then-vanishing pattern actively <strong>damages</strong> trust — it
+                  signals you don&apos;t finish things. Drop to a rhythm you can sustain on your worst
+                  week: even one good post a week beats five-then-zero. The weekly rhythm tracker on
+                  your dashboard exists precisely to protect you from this.
+                </>
+              ),
+            },
+            {
+              scenario: "You're getting likes and follows but zero business conversations.",
+              fix: (
+                <>
+                  Engagement isn&apos;t the goal — <strong>cross-over</strong> is. If the personal
+                  account never points to @genzistudio and never shows the work, followers have no
+                  path to becoming clients. Make sure your bio links across and that roughly one in
+                  three posts references the agency or a real project.
+                </>
+              ),
+            },
+            {
+              scenario: "Every post feels like it has to be polished and profound, so you post nothing.",
+              fix: (
+                <>
+                  The founder-journey pillar exists to kill this. <strong>Lower the bar
+                  deliberately</strong>: a quick honest note about what you learned this week is
+                  higher-trust than a perfectly art-directed carousel. Done and human beats polished
+                  and absent.
+                </>
+              ),
+            },
+          ]}
+        />
+
         <SectionLabel>Personal brand action checklist</SectionLabel>
-        <Checklist panelId="personalbrand" tasks={tasks} />
+        <Checklist panelId="personalbrand" tasks={PANEL_TASKS.personalbrand} />
       </div>
       <SectionTracker panelId="personalbrand" />
     </>
