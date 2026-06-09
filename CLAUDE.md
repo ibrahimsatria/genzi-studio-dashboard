@@ -15,7 +15,7 @@
 
 | Layer | Choice | Notes |
 |---|---|---|
-| Framework | Next.js 15 (App Router) | TypeScript, Turbopack, no `src/` dir |
+| Framework | Next.js 16 (App Router) | TypeScript, Turbopack, no `src/` dir |
 | Styling | Tailwind CSS v4 | Custom theme tokens via `@theme` in `app/globals.css`; no default Tailwind palette |
 | Auth + DB | Supabase | `@supabase/ssr` for SSR-safe clients; open signup (multi-user); RLS on all user tables |
 | Fonts | `next/font/google` | Fraunces · JetBrains Mono · Inter Tight |
@@ -34,15 +34,17 @@
 --bg3:         #1c1916
 --bg4:         #26231e
 --brass:       #d4a574   /* primary accent */
---brass-dim:   #a07a50
+--brass-dim:   #a8855f   /* lightened from #a07a50 for WCAG AA on elevated surfaces */
 --sienna:      #c45a3a   /* secondary accent */
 --cream:       #f0ead8   /* primary text */
 --cream-mid:   #c8bfaa   /* body text */
---cream-dim:   #8a8070   /* muted text */
+--cream-dim:   #9c9486   /* muted text — lightened from #8a8070 for WCAG AA on elevated surfaces */
 --green:       #5aaa72   /* success / completed */
 --border:      #2a2620
 --border-light:#3a3428
 ```
+
+> **Note:** `--brass-dim` and `--cream-dim` were intentionally lightened (from `#a07a50` / `#8a8070`) so muted/mono caption text clears WCAG AA (≥4.5:1) on the darker elevated surfaces. These new values are now the frozen values — do not revert them.
 
 **Typography:**
 - Display / headings: `Fraunces` (serif, weight 300–700, italic for em accents)
@@ -90,6 +92,8 @@ Never commit `.env.local` — `.gitignore` excludes it by default.
 | Level-up overlay | Full-screen takeover with dismiss-on-click or Esc |
 | Toggle-able tasks | Tasks can be unchecked; XP is refunded; level recomputes silently if it drops |
 
+XP/level/sections/tasks remain the gamification core. The **outcomes, rhythm, and phase layer** built on top of it (real metrics, streaks, phase unlocks) is documented in §12.
+
 ---
 
 ## 7. Anti-Patterns — Never Do
@@ -108,15 +112,28 @@ Never commit `.env.local` — `.gitignore` excludes it by default.
 
 ## 8. Content Sections (7 panels)
 
-1. `overview` — mission control, overall progress, nav cards
-2. `roadmap` — 3-phase timeline (Phase 1: now, Phase 2: month 1–3, Phase 3: month 3+)
-3. `portfolio` — 3 sources, strong vs weak case study, deliverables checklist, target sectors
-4. `pricing` — 3-tier deal structure (spec / introductory partnership / value swap)
-5. `specwork` — 5-stage process (pick target → brief → full scope → case study → DM)
-6. `personalbrand` — two-account strategy, 3 content pillars, conversion funnel, weekly rhythm
-7. `outreach` — 4 channels, 3 scripts, priority sectors in BSB, weekly checklist
+1. `overview` (nav label "Today") — **daily command center**, NOT a table of contents. Opens on
+   Today/where-you-are (time indicator + phase locks) → This week's focus (curated weekly actions
+   + rhythm streaks + momentum) → How I'm tracking (metric counters, funnel, portfolio) →
+   Reference library (the cards linking to the educational sections below). Lives at `/dashboard`;
+   `/dashboard/overview` redirects here.
+2. `roadmap` — 3-phase timeline; Phases 2 & 3 are gated (lock card + "Preview anyway") until their
+   unlock criteria are met (see §12). Phase 3 carries a concrete rate-rule ladder.
+3. `portfolio` — 3 sources, strong vs weak case study, deliverables checklist, target sectors, + an
+   interactive portfolio-pieces tracker.
+4. `pricing` — discount tiers (spec / introductory / value swap) **plus** the real standard rate
+   card, agency unit economics (profitable-quote formula + worked example), and retainer structure.
+5. `specwork` — 5-stage process (pick target → brief → full scope → case study → DM).
+6. `personalbrand` — two-account strategy, 3 content pillars, conversion funnel, weekly rhythm.
+7. `outreach` — 4 channels, 3 scripts, priority sectors in BSB, weekly checklist, + the interactive
+   outreach log that feeds the pipeline funnel.
 
-Source content lives in `content/*.ts` files (typed) and is consumed by route components at `app/dashboard/[section]/page.tsx`.
+Every major section also has a sienna **"When this goes wrong"** reality-check block.
+
+Source content lives in `content/*.ts` files (typed). Checklist tasks are centralized in
+`content/tasks.ts` keyed by panel — task identity is `"<panel>:<index>"`, so **never reorder a
+panel's tasks** (append only) or you break saved progress and the home "This week" view. Sections
+are rendered by route components at `app/dashboard/[section]/page.tsx`.
 
 ---
 
@@ -177,4 +194,29 @@ Source content lives in `content/*.ts` files (typed) and is consumed by route co
 
 ## 11. Next.js Version Note
 
-This project uses Next.js 15. APIs, conventions, and file structure may differ from older training data. Before writing Next.js code, consult `node_modules/next/dist/docs/` and heed deprecation notices.
+This project uses Next.js 16 (Turbopack). APIs, conventions, and file structure may differ from older training data. Before writing Next.js code, consult `node_modules/next/dist/docs/` and heed deprecation notices. Note: Next 16 uses `proxy.ts` (not `middleware.ts`) for request middleware — see the root `proxy.ts`.
+
+---
+
+## 12. Data Model & Outcomes Layer
+
+Supabase tables (all per-user, all RLS-protected — a user only ever sees their own rows). Migrations live in `supabase/migrations/` and are run by hand in the Supabase SQL editor, in order:
+
+| Migration | Tables / changes |
+|---|---|
+| `0001_user_progress.sql` | `user_progress` — XP, level, `sections_read[]`, `checked_tasks[]`, `active_panel`, `sound_enabled` |
+| `0002_metrics.sql` | `pipeline_entries` (outreach/funnel/clients/revenue), `portfolio_pieces`; `touch_updated_at()` helper |
+| `0003_rhythm.sql` | adds `user_progress.started_at` (journey anchor); `habit_weeks` (weekly habit ledger) |
+
+**When deploying schema changes:** run the new migration on the Supabase project used by the target environment *before/with* the deploy. (Production and dev currently share the project `wgxmslageaikzmwbjvpc` unless Vercel env vars say otherwise — verify the `NEXT_PUBLIC_SUPABASE_URL` env per environment.)
+
+**State architecture** — three client stores, each hydrated by a server fetch in `app/dashboard/layout.tsx` and persisted via server actions with optimistic local updates:
+- `lib/progress-store.tsx` ← `progress-server.ts` — XP/levels/tasks/sections (the frozen gamification core).
+- `lib/metrics-store.tsx` ← `metrics-server.ts` — pipeline entries + portfolio pieces. Pure derivations in `lib/metrics-derive.ts` (funnel counts, conversion, headline metrics).
+- `lib/rhythm-store.tsx` ← `rhythm-server.ts` — `started_at` + weekly habit counts. Pure week/streak/time math in `lib/rhythm-derive.ts`.
+
+**Phase unlocking** (`lib/phases.ts`) is derived from real outcomes, not time: Phase 1 always open; Phase 2 unlocks at **3 portfolio pieces shipped**; Phase 3 unlocks at **1 client won (deal closed)**. Time elapsed is shown separately (month buckets from `started_at`).
+
+**Weekly rhythm streaks** (`lib/rhythm-types.ts`): `posts` target 3/week, `outreach` target 1/week. A week is Monday-anchored; the in-progress week doesn't break a streak.
+
+Reusable section primitives added: `WhenThisGoesWrong` (risk blocks) and `RateBreakdown` (unit-economics tables) in `components/panel/`. Home command-center pieces in `components/home/`; roadmap phase visuals in `components/roadmap/`.
