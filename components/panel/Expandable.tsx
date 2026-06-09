@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { sound } from "@/lib/audio";
 
 export function Expandable({
@@ -13,6 +13,7 @@ export function Expandable({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const regionId = useId();
 
   return (
     <div className="mb-2.5 overflow-hidden rounded-xl border border-border-base transition-colors duration-200 hover:border-border-soft">
@@ -23,6 +24,7 @@ export function Expandable({
           sound.exp();
         }}
         aria-expanded={open}
+        aria-controls={regionId}
         className={[
           "flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors duration-200",
           open ? "bg-bg-3 border-b border-border-base" : "bg-bg-2 hover:bg-bg-3",
@@ -46,6 +48,8 @@ export function Expandable({
       </button>
       {open && (
         <div
+          id={regionId}
+          role="region"
           className="bg-bg-2 px-6 py-6 sm:pl-[60px] sm:pr-7"
           style={{ animation: "expandIn .2s ease forwards" }}
         >

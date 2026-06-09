@@ -7,15 +7,9 @@ import {
   Expandable,
   Checklist,
   SectionTracker,
+  WhenThisGoesWrong,
 } from "@/components/panel";
-
-const tasks = [
-  { text: "Publishing rights confirmed in writing before any work begins", xp: 15 },
-  { text: "Rate and full scope defined clearly and agreed before starting", xp: 15 },
-  { text: "Hard expiry on the rate communicated upfront in the conversation", xp: 15 },
-  { text: "Revision rounds capped at 2 and stated at project kickoff", xp: 15 },
-  { text: "Testimonial request planned and ready to send on delivery day", xp: 15 },
-];
+import { PANEL_TASKS } from "@/content/tasks";
 
 export default function PricingPage() {
   return (
@@ -157,8 +151,50 @@ export default function PricingPage() {
           </p>
         </Expandable>
 
+        <WhenThisGoesWrong
+          intro="Discounted work is the single most dangerous part of this whole strategy — not because of the discount, but because of what happens when boundaries slip. Here's how it goes wrong and how to hold the line."
+          items={[
+            {
+              scenario: "Your discounted client keeps demanding 'just one more' revision round.",
+              fix: (
+                <>
+                  This is why the two-round cap is set <strong>in writing at kickoff</strong>, not
+                  improvised later. When they ask for round three: &ldquo;Happy to — revisions beyond
+                  the two we agreed are billed at my standard hourly rate. Want me to send a quick
+                  estimate?&rdquo; Most stop immediately. The ones who don&apos;t are now paying you
+                  properly. Either outcome is fine.
+                </>
+              ),
+            },
+            {
+              scenario: "You realize every client expects your discounted rate to be your real rate.",
+              fix: (
+                <>
+                  This is the permanent-discount trap, and it&apos;s how solo studios quietly die.
+                  The defense is the <strong>hard expiry</strong>: state, in writing, that the rate is
+                  specific to the first project before you start. Cap introductory deals at 2,
+                  total — not 2 at a time. Once you&apos;ve shipped them, your published work and
+                  testimonials justify full price. Raise it and don&apos;t apologize.
+                </>
+              ),
+            },
+            {
+              scenario: "A 'free' value-swap has eaten 20 hours and you've gotten nothing usable back.",
+              fix: (
+                <>
+                  Value swaps only work when the trade is <strong>concrete and bounded</strong> before
+                  you start — defined deliverable, defined return, defined deadline, in writing. If
+                  the other side&apos;s value is vague (&ldquo;exposure,&rdquo; &ldquo;future
+                  work&rdquo;), it&apos;s not a swap, it&apos;s free work with extra steps. Walk away
+                  and put those 20 hours into a spec piece you fully own.
+                </>
+              ),
+            },
+          ]}
+        />
+
         <SectionLabel>Pre-project checklist</SectionLabel>
-        <Checklist panelId="pricing" tasks={tasks} />
+        <Checklist panelId="pricing" tasks={PANEL_TASKS.pricing} />
       </div>
       <SectionTracker panelId="pricing" />
     </>

@@ -5,30 +5,18 @@ import {
   Quote,
   Expandable,
   Checklist,
-  PhaseRow,
   SectionTracker,
 } from "@/components/panel";
-
-const tasks = [
-  { text: "Choose 3 local businesses for spec work this week", xp: 10 },
-  { text: "Write a real brief before opening any design tool", xp: 10 },
-  { text: "Identify 2 businesses for discounted partnership", xp: 10 },
-  { text: "Update your personal Instagram bio to reference @genzistudio", xp: 10 },
-  { text: "Post your first process or founder journey content this week", xp: 10 },
-];
+import { RoadmapPhaseRow, PhaseGate } from "@/components/roadmap/RoadmapPhases";
+import { WhenThisGoesWrong } from "@/components/panel/WhenThisGoesWrong";
+import { PANEL_TASKS } from "@/content/tasks";
 
 export default function RoadmapPage() {
   return (
     <>
       <PanelHeader id="roadmap" />
       <div className="px-6 py-10 sm:px-12 md:px-14 md:py-12">
-        <PhaseRow
-          phases={[
-            { n: 1, span: "Now", name: "Build Proof", time: "Month 0 – 1", state: "now" },
-            { n: 2, span: "Next", name: "Activate Channels", time: "Month 1 – 3", state: "next" },
-            { n: 3, span: "Scale", name: "Convert & Retain", time: "Month 3+", state: "scale" },
-          ]}
-        />
+        <RoadmapPhaseRow />
 
         <SectionLabel>Phase 1 — Build proof without waiting for paying clients</SectionLabel>
         <Body>
@@ -91,6 +79,7 @@ export default function RoadmapPage() {
         </Expandable>
 
         <SectionLabel>Phase 2 — Activate your channels (Month 1–3)</SectionLabel>
+        <PhaseGate phase={2}>
         <Body>
           Once you have 3–5 pieces and 2–3 testimonials, you have something to point at. Now you
           run two tracks simultaneously — digital presence and direct outreach. Both feed each
@@ -151,7 +140,10 @@ export default function RoadmapPage() {
           </p>
         </Expandable>
 
+        </PhaseGate>
+
         <SectionLabel>Phase 3 — Scale and convert (Month 3+)</SectionLabel>
+        <PhaseGate phase={3}>
 
         <Expandable num="3.1" title="Package your services into clear offers">
           <p>Stop selling time. Start selling outcomes. Three tiers work well for Brunei SMEs:</p>
@@ -189,8 +181,49 @@ export default function RoadmapPage() {
           </p>
         </Expandable>
 
+        </PhaseGate>
+
+        <WhenThisGoesWrong
+          intro="The roadmap looks linear on paper. In practice, Phase 1 is where most solo founders stall. Here's what that actually looks like — and how to keep moving."
+          items={[
+            {
+              scenario: "You've done spec work for weeks and nobody has replied to your DMs.",
+              fix: (
+                <>
+                  This is normal, not failure. Spec work&apos;s primary value is the{" "}
+                  <strong>portfolio piece</strong> — the DM is a bonus shot. Keep the pieces, widen
+                  the net, and don&apos;t let silence from 3 businesses convince you the strategy is
+                  broken. Ship 5 pieces before judging response rates.
+                </>
+              ),
+            },
+            {
+              scenario: "You're stuck polishing one piece for a month instead of shipping three.",
+              fix: (
+                <>
+                  Perfectionism is procrastination in a nicer outfit. A complete, good piece beats a
+                  perfect, unfinished one. Cap each spec project at a fixed time box and{" "}
+                  <strong>ship it</strong> — the portfolio counter on your dashboard rewards finished,
+                  not flawless.
+                </>
+              ),
+            },
+            {
+              scenario: "Three months in and you still have zero paying clients.",
+              fix: (
+                <>
+                  Audit the funnel, not your worth. If DMs are high but replies are low, the
+                  observation isn&apos;t specific enough. If replies are high but calls are low,
+                  you&apos;re not asking. The funnel tracker tells you{" "}
+                  <strong>which step is leaking</strong> — fix that one step.
+                </>
+              ),
+            },
+          ]}
+        />
+
         <SectionLabel>Phase 1 action checklist</SectionLabel>
-        <Checklist panelId="roadmap" tasks={tasks} />
+        <Checklist panelId="roadmap" tasks={PANEL_TASKS.roadmap} />
       </div>
       <SectionTracker panelId="roadmap" />
     </>
