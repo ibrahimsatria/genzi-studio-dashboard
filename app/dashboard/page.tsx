@@ -1,5 +1,6 @@
 import { PanelHeader, HeroBlock, SectionLabel, SectionTracker } from "@/components/panel";
 import { OverallProgress, NavCards } from "@/components/panel/OverviewBlocks";
+import { MetricCounters, FunnelTracker, PortfolioTracker } from "@/components/metrics";
 import type { PanelId } from "@/content/panels";
 
 const NAV_SUBTITLES: Record<PanelId, string> = {
@@ -29,6 +30,16 @@ export default function OverviewPage() {
           body="You're in a credibility chicken-and-egg trap: clients want proof, but you need clients to build proof. The way out is to manufacture proof first — then use it to attract clients systematically. That's exactly what this OS is built to guide you through."
         />
         <OverallProgress />
+
+        <SectionLabel>Your numbers</SectionLabel>
+        <MetricCounters />
+
+        <SectionLabel>Pipeline &amp; portfolio</SectionLabel>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <FunnelTracker />
+          <PortfolioTracker />
+        </div>
+
         <SectionLabel>Jump to a section</SectionLabel>
         <NavCards subtitles={NAV_SUBTITLES} />
       </div>
