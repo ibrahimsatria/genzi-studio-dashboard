@@ -44,6 +44,7 @@ export const PANEL_TASKS: Record<PanelId, Task[]> = {
     { text: "Hard expiry on the rate communicated upfront in the conversation", xp: 15 },
     { text: "Revision rounds capped at 2 and stated at project kickoff", xp: 15 },
     { text: "Testimonial request planned and ready to send on delivery day", xp: 15 },
+    { text: "Write your standard rate card and the trigger to exit intro pricing", xp: 15 },
   ],
 
   specwork: [

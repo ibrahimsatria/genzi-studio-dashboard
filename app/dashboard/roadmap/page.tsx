@@ -9,6 +9,7 @@ import {
 } from "@/components/panel";
 import { RoadmapPhaseRow, PhaseGate } from "@/components/roadmap/RoadmapPhases";
 import { WhenThisGoesWrong } from "@/components/panel/WhenThisGoesWrong";
+import { RateBreakdown } from "@/components/panel/RateBreakdown";
 import { PANEL_TASKS } from "@/content/tasks";
 
 export default function RoadmapPage() {
@@ -167,14 +168,29 @@ export default function RoadmapPage() {
           </p>
         </Expandable>
 
-        <Expandable num="3.2" title="Raise rates as proof accumulates">
+        <Expandable num="3.2" title="Raise rates on a trigger, not a feeling">
           <p>
-            Every completed project is a rate justification. After your first 3 paid clients,
-            review your pricing. After your first 5, raise it. The competition problem solves
-            itself once you have proof — your editorial luxury aesthetic is already genuinely
-            differentiated from what most local agencies produce in BSB. That&apos;s a real moat. You
-            just need the work to prove it.
+            &ldquo;Raise rates as proof accumulates&rdquo; is useless advice because it never says
+            when or to what. So here is the concrete rule. <strong>The trigger to exit intro pricing
+            is 3 published pieces + 2 written testimonials.</strong> The day you hit it, your very
+            next quote goes out at your full standard rate — Brand Identity from{" "}
+            <strong>BND 2,800</strong> (see the Pricing section) — and never at the intro rate again.
           </p>
+          <p>
+            After that, raise on a rule, not a mood: <strong>+15–20% after every 3 booked projects</strong>{" "}
+            at your current rate, or the moment you&apos;re turning work away. A waitlist is the market
+            telling you you&apos;re underpriced — listen to it.
+          </p>
+          <RateBreakdown
+            title="Your rate ladder"
+            rows={[
+              { label: "Pieces 1–2 · intro partnerships", value: "BND 150–500", note: "buy case studies" },
+              { label: "Trigger: 3 published + 2 testimonials", value: "exit intro", kind: "subtotal" },
+              { label: "Standard · Brand Identity", value: "BND 2,800+" },
+              { label: "After 3 projects at standard", value: "+15–20%", note: "≈ BND 3,300" },
+              { label: "Booking 1+/month consistently", value: "Premium + retainer-first", kind: "total" },
+            ]}
+          />
           <p>
             <strong>Goal by end of Phase 3:</strong> Predictable pipeline, 3–5 retainer clients, a
             referral system that brings new leads passively without you actively hunting.

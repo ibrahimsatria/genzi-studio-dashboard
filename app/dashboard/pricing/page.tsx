@@ -1,7 +1,10 @@
 import {
   PanelHeader,
   SectionLabel,
+  Body,
   Quote,
+  Grid,
+  Card,
   TierRow,
   Tier,
   Expandable,
@@ -9,6 +12,7 @@ import {
   SectionTracker,
   WhenThisGoesWrong,
 } from "@/components/panel";
+import { RateBreakdown } from "@/components/panel/RateBreakdown";
 import { PANEL_TASKS } from "@/content/tasks";
 
 export default function PricingPage() {
@@ -101,6 +105,137 @@ export default function PricingPage() {
             your honest motivation. You&apos;re choosing them, not begging them.
           </p>
         </Expandable>
+
+        <SectionLabel>Real pricing — what you charge after the discount tiers</SectionLabel>
+        <Body>
+          Tiers 1–3 above are how you buy your first case studies. They are temporary by design.
+          The moment you have published proof, these are the standard rates you quote — in BND, for
+          the Brunei SME market. Anchor every conversation to these numbers and discount only with a
+          written, expiring reason. The discount tiers were the on-ramp; this is the road.
+        </Body>
+        <TierRow>
+          <Tier
+            badge={{ text: "Entry", tone: "sienna" }}
+            name="Brand Starter"
+            price="BND 1,200+"
+            priceSub="one-time"
+            list={[
+              "Logo system + core variations",
+              "Core palette and type pairing",
+              "Two social templates",
+              "One-page mini brand guide",
+              "One revision round",
+            ]}
+            note="For small or new businesses testing brand"
+          />
+          <Tier
+            recommended
+            badge={{ text: "Your default quote", tone: "brass" }}
+            name="Brand Identity"
+            price="BND 2,800+"
+            priceSub="one-time"
+            list={[
+              "Full logo suite + lockups",
+              "Complete colour + type system",
+              "4+ real-world application mockups",
+              "Full brand guidelines document",
+              "Instagram template kit",
+              "Two revision rounds",
+            ]}
+            note="What most projects should cost once you have proof"
+          />
+          <Tier
+            badge={{ text: "High value", tone: "green" }}
+            name="Brand + Launch"
+            price="BND 5,000+"
+            priceSub="one-time"
+            list={[
+              "Everything in Brand Identity",
+              "Launch campaign asset set",
+              "One month of content templates",
+              "Rollout support + priority turnaround",
+              "Optional retainer to continue",
+            ]}
+            note="New launches and funded rebrands"
+          />
+        </TierRow>
+        <Body>
+          These are floors, not ceilings — the &ldquo;+&rdquo; matters. A café with one outlet and a
+          regional F&amp;B group with franchise ambitions do not pay the same for an identity, even
+          if the deliverables list looks similar. Read the budget, then quote into it.
+        </Body>
+
+        <SectionLabel>Agency unit economics — quote so the project is actually profitable</SectionLabel>
+        <Body>
+          A price isn&apos;t a number you feel good about — it&apos;s a number that survives contact
+          with your real hours. A BND 2,800 project that quietly takes 90 hours pays you BND 31/hour,
+          which is not an agency, it&apos;s a hobby with extra admin. Before any quote leaves your
+          hands, run it through the floor.
+        </Body>
+
+        <Expandable num="→" title="The profitable-quote formula">
+          <p>
+            <strong>1. Set your effective hourly floor.</strong> Pick the number below which a project
+            is not worth taking — start around <strong>BND 50/hour</strong> as a solo studio. Remember
+            you are not billing eight hours a day: realistically you have ~20 billable hours a week,
+            so your floor has to cover the unbillable half too.
+          </p>
+          <p>
+            <strong>2. Estimate the hours honestly,</strong> then add a revision buffer — two rounds
+            of changes is roughly <strong>+25%</strong> on the design time. Quotes die from the
+            revisions you forgot to price, not the ones you did.
+          </p>
+          <p>
+            <strong>3. Add hard costs</strong> you actually pay: fonts and licensing, stock, mockup
+            tools, printing for proofs. These come off the top before any profit.
+          </p>
+          <p>
+            <strong>4. Add a value premium</strong> when the brand visibly drives the client&apos;s
+            revenue — a packaging system that sells on a shelf is worth more than the hours in it.
+          </p>
+          <p>
+            <strong>5. Run the floor check:</strong> quote ÷ realistic hours must beat your hourly
+            floor. If it doesn&apos;t, raise the quote or cut the scope — never absorb it silently.
+          </p>
+        </Expandable>
+
+        <RateBreakdown
+          title="Worked example — a Brand Identity quote"
+          rows={[
+            { label: "Design time — 40h @ BND 50 floor", value: "BND 2,000" },
+            { label: "Revision buffer (two rounds, +25%)", value: "BND 500" },
+            { label: "Hard costs — fonts, mockups, licensing", value: "BND 150" },
+            { label: "Subtotal (your cost to deliver)", value: "BND 2,650", kind: "subtotal" },
+            { label: "Quote to client", value: "BND 2,800", kind: "total", note: "rounded up" },
+          ]}
+          footnote={
+            <>
+              Even after two full revision rounds (~50 hours), that quote still clears{" "}
+              <strong>~BND 56/hour</strong> — above your floor. If the client&apos;s brand will
+              demonstrably lift their sales, quoting BND 3,500 here is justified, not greedy.
+            </>
+          }
+        />
+
+        <SectionLabel>The retainer — turn one-off projects into predictable revenue</SectionLabel>
+        <Body>
+          Project work feasts and famines. The retainer is what makes the agency a business you can
+          forecast — it&apos;s the financial engine of Phase 3. Keep the structure boringly simple.
+        </Body>
+        <Grid cols={2}>
+          <Card
+            eyebrow="Structure"
+            title="Monthly scope, billed monthly"
+            body="A fixed bundle of ongoing work — social content plus light design — billed on the 1st, with a 3-month minimum so it's worth onboarding. Cap the deliverables in writing (e.g. 'up to 12 posts + one story set per week'); anything beyond the cap is billed separately. The scope cap is the same discipline as the two-revision rule, just monthly."
+            tag="3-month minimum · scope capped in writing"
+          />
+          <Card
+            eyebrow="Pricing it"
+            title="BND 800 – 1,500 / month"
+            body="Price the retainer at roughly 10–15% below your project hourly — predictability is worth a small discount to you, never a large one. BND 800/mo suits a single-outlet F&B account; BND 1,500/mo suits a multi-location brand wanting weekly content and monthly strategy. Review and re-rate every 6 months."
+            tag="≈ 10–15% under project rate, not more"
+          />
+        </Grid>
 
         <SectionLabel>Non-negotiable conditions on every deal</SectionLabel>
 
