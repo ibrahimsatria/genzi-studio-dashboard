@@ -8,6 +8,7 @@ import {
   Checklist,
   SectionTracker,
 } from "@/components/panel";
+import { PortfolioPieces } from "@/components/metrics";
 
 const tasks = [
   { text: "Written brief (audience, problem, strategic direction, constraints)", xp: 10, label: "essential" },
@@ -87,6 +88,9 @@ export default function PortfolioPage() {
             the selling for you before you&apos;ve said a word.
           </p>
         </Expandable>
+
+        <SectionLabel>Track your pieces toward the 3–5 goal</SectionLabel>
+        <PortfolioPieces />
 
         <SectionLabel>Full deliverables list — what a complete piece includes</SectionLabel>
         <Checklist panelId="portfolio" tasks={tasks} />

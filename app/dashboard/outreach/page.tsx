@@ -9,6 +9,7 @@ import {
   Checklist,
   SectionTracker,
 } from "@/components/panel";
+import { OutreachLog } from "@/components/metrics";
 
 const tasks = [
   { text: "Build a target list of 20 specific BSB businesses to approach", xp: 20 },
@@ -29,6 +30,15 @@ export default function OutreachPage() {
           Cold pitches don&apos;t work in Brunei. Specific observations do. The difference between
           the two is whether the business owner feels seen — or marketed to.
         </Quote>
+
+        <SectionLabel>Your outreach log — track every prospect</SectionLabel>
+        <Body>
+          This is the log this section keeps telling you to set up. Add a prospect the moment you
+          send a DM, then advance it through the stages as the conversation moves. The pipeline
+          funnel on your dashboard reads straight from here — so logging a DM updates your funnel
+          automatically.
+        </Body>
+        <OutreachLog />
 
         <SectionLabel>The 4 outreach channels — ranked by signal</SectionLabel>
         <Grid cols={2}>
