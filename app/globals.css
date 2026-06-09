@@ -8,13 +8,13 @@
   --bg4:          #26231e;
   --bg5:          #302c26;
   --brass:        #d4a574;
-  --brass-dim:    #a07a50;
+  --brass-dim:    #a8855f;  /* lightened from #a07a50 for WCAG AA on elevated surfaces */
   --brass-glow:   rgba(212, 165, 116, 0.18);
   --sienna:       #c45a3a;
   --sienna-dim:   #8a3e28;
   --cream:        #f0ead8;
   --cream-mid:    #c8bfaa;
-  --cream-dim:    #8a8070;
+  --cream-dim:    #9c9486;  /* lightened from #8a8070 for WCAG AA on elevated surfaces */
   --green:        #5aaa72;
   --green-bg:     rgba(90, 170, 114, 0.12);
   --border:       #2a2620;
